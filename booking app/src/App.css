@@ -1,0 +1,8 @@
+@font-face {
+  font-family: itim;
+  src: url('./assets/font/Itim-Regular.ttf');
+}
+
+*{
+  font-family: itim;
+}

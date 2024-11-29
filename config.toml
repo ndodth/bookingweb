@@ -1,0 +1,14 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  bin = "main"
+  cmd = "go build -o main"
+
+[watch]
+    include = ["*.go"]
+
+  exclude = ["tmp", "vendor","node_modules"]
+
+[log]
+  colors = true
