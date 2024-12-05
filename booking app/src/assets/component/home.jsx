@@ -212,6 +212,11 @@ const handleSelectRoom = (room) => {
     setModalMessage("เวลาเริ่มต้นต้องน้อยกว่าเวลาสิ้นสุด");
     setShowModal(true);
   } else {
+    console.log(" room.room_pic", room.room_pic)
+    console.log(" room", room)
+    console.log("selectedTime",selectedTime.value)
+    console.log(" selectedTime2", selectedTime2.value)
+
     navigate("/ยืนยัน", {
       state: {
         roomData: room,

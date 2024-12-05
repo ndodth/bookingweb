@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -26,7 +27,7 @@ func home(c *fiber.Ctx) error {
 	var roomPic sql.NullString
 
 	var placeholderIndex int
-
+	fmt.Println("home.go")
 	selectedBuilding := c.Query("building", "")
 	selectedFloor := c.Query("floor", "")
 	selectedRoom := c.Query("room", "")
@@ -51,18 +52,18 @@ func home(c *fiber.Ctx) error {
 	if selectedTime != "" && selectedTime2 != "" && selectedDate != "" {
 		query += `
 		LEFT JOIN BOOKING book ON r.id = book.room_id 
-		AND TRUNC(book.start_time) = TO_DATE(:` + strconv.Itoa(placeholderIndex+1) + `, 'YYYY-MM-DD')
+		AND TRUNC(book.start_time) = TO_DATE($` + strconv.Itoa(placeholderIndex+1) + `, 'YYYY-MM-DD')
 		WHERE (book.room_id IS NULL OR book.status_id  IN (2, 3, 4)) 
 		AND (
 			(book.status_id IS NULL) OR
 			( 
-				(:` + strconv.Itoa(placeholderIndex+2) + ` BETWEEN TO_CHAR(book.start_time, 'HH24:MI') AND TO_CHAR(book.end_time - INTERVAL '1' HOUR, 'HH24:MI')) 
-				OR (:` + strconv.Itoa(placeholderIndex+3) + ` BETWEEN TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') AND TO_CHAR(book.end_time, 'HH24:MI')) 
-				OR (TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') BETWEEN :` + strconv.Itoa(placeholderIndex+4) + ` AND :` + strconv.Itoa(placeholderIndex+5) + `)
-				OR (TO_CHAR(book.end_time - INTERVAL '1' HOUR, 'HH24:MI') BETWEEN :` + strconv.Itoa(placeholderIndex+6) + ` AND :` + strconv.Itoa(placeholderIndex+7) + `)
-				OR (TO_CHAR(book.start_time, 'HH24:MI') < :` + strconv.Itoa(placeholderIndex+8) + ` AND TO_CHAR(book.end_time, 'HH24:MI') > :` + strconv.Itoa(placeholderIndex+9) + `)
-				OR (:` + strconv.Itoa(placeholderIndex+10) + ` < TO_CHAR(book.end_time, 'HH24:MI') AND :` + strconv.Itoa(placeholderIndex+11) + ` > TO_CHAR(book.start_time, 'HH24:MI'))
-				OR (:` + strconv.Itoa(placeholderIndex+12) + ` >= TO_CHAR(book.end_time, 'HH24:MI') AND :` + strconv.Itoa(placeholderIndex+13) + ` < TO_CHAR(book.start_time, 'HH24:MI'))
+				($` + strconv.Itoa(placeholderIndex+2) + ` BETWEEN TO_CHAR(book.start_time, 'HH24:MI') AND TO_CHAR(book.end_time - INTERVAL '1' HOUR, 'HH24:MI')) 
+				OR ($` + strconv.Itoa(placeholderIndex+3) + ` BETWEEN TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') AND TO_CHAR(book.end_time, 'HH24:MI')) 
+				OR (TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') BETWEEN $` + strconv.Itoa(placeholderIndex+4) + ` AND $` + strconv.Itoa(placeholderIndex+5) + `)
+				OR (TO_CHAR(book.end_time - INTERVAL '1' HOUR, 'HH24:MI') BETWEEN $` + strconv.Itoa(placeholderIndex+6) + ` AND $` + strconv.Itoa(placeholderIndex+7) + `)
+				OR (TO_CHAR(book.start_time, 'HH24:MI') < $` + strconv.Itoa(placeholderIndex+8) + ` AND TO_CHAR(book.end_time, 'HH24:MI') > $` + strconv.Itoa(placeholderIndex+9) + `)
+				OR ($` + strconv.Itoa(placeholderIndex+10) + ` < TO_CHAR(book.end_time, 'HH24:MI') AND $` + strconv.Itoa(placeholderIndex+11) + ` > TO_CHAR(book.start_time, 'HH24:MI'))
+				OR ($` + strconv.Itoa(placeholderIndex+12) + ` >= TO_CHAR(book.end_time, 'HH24:MI') AND $` + strconv.Itoa(placeholderIndex+13) + ` < TO_CHAR(book.start_time, 'HH24:MI'))
 			)
 		)`
 
@@ -74,24 +75,24 @@ func home(c *fiber.Ctx) error {
 		query += ` WHERE 1 = 1 `
 	}
 	if selectedBuilding != "" {
-		query += ` AND b.name = :` + strconv.Itoa(placeholderIndex+1)
+		query += ` AND b.name = $` + strconv.Itoa(placeholderIndex+1)
 		params = append(params, selectedBuilding)
 		placeholderIndex += 1
 
 	}
 	if selectedFloor != "" {
-		query += ` AND f.name = :` + strconv.Itoa(placeholderIndex+1)
+		query += ` AND f.name = $` + strconv.Itoa(placeholderIndex+1)
 		params = append(params, selectedFloor)
 		placeholderIndex += 1
 	}
 	if selectedRoom != "" {
 
-		query += ` AND r.name = :` + strconv.Itoa(placeholderIndex+1)
+		query += ` AND r.name = $` + strconv.Itoa(placeholderIndex+1)
 		params = append(params, selectedRoom)
 		placeholderIndex += 1
 	}
 	if selectedType != "" {
-		query += ` AND rt.name = :` + strconv.Itoa(placeholderIndex+1)
+		query += ` AND rt.name = $` + strconv.Itoa(placeholderIndex+1)
 		params = append(params, selectedType)
 		placeholderIndex += 1
 	}
@@ -102,7 +103,7 @@ func home(c *fiber.Ctx) error {
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid people count"})
 		}
-		query += ` AND r.cap >= :` + strconv.Itoa(placeholderIndex+1)
+		query += ` AND r.cap >= $` + strconv.Itoa(placeholderIndex+1)
 		params = append(params, cap)
 		placeholderIndex += 1
 	}
@@ -123,12 +124,20 @@ func home(c *fiber.Ctx) error {
 			fmt.Println("Error scanning room:", err)
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
+
+		var path_file string
 		// Check if roomPic is valid and set the Roompic field accordingly
 		if roomPic.Valid {
-			room_pic = roomPic.String
+			path_file = roomPic.String
+		} else {
+			// ถ้าไม่มีค่ากำหนดเป็นภาพเริ่มต้น
+			fmt.Println("test")
+			path_file = "room.png"
 		}
+		supabaseURL := os.Getenv("SUPABASE_URL1")
 
-		room_pic = fmt.Sprintf("/img/rooms/%s", room_pic)
+		room_pic = supabaseURL + "/storage/v1/object/public/room-pictures/" + path_file
+		fmt.Println("room_pic", room_pic)
 
 		rooms = append(rooms, map[string]interface{}{
 			"id":           id,
@@ -230,18 +239,18 @@ func checkRoomAvailability(date, startTime, endTime, selectedRoom, selectedBuild
 
 		query += `
 		LEFT JOIN BOOKING book ON r.id = book.room_id 
-		AND TRUNC(book.start_time) = TO_DATE(:` + strconv.Itoa(placeholderIndex+1) + `, 'YYYY-MM-DD')
+		AND TRUNC(book.start_time) = TO_DATE($` + strconv.Itoa(placeholderIndex+1) + `, 'YYYY-MM-DD')
 		WHERE (book.room_id IS NULL OR book.status_id  IN (2, 3, 4)) 
 		AND (
 			(book.status_id IS NULL) OR
 			( 
-				(:` + strconv.Itoa(placeholderIndex+2) + ` BETWEEN TO_CHAR(book.start_time, 'HH24:MI') AND TO_CHAR(book.end_time - INTERVAL '1' HOUR, 'HH24:MI')) 
-				OR (:` + strconv.Itoa(placeholderIndex+3) + ` BETWEEN TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') AND TO_CHAR(book.end_time, 'HH24:MI')) 
-				OR (TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') BETWEEN :` + strconv.Itoa(placeholderIndex+4) + ` AND :` + strconv.Itoa(placeholderIndex+5) + `)
-				OR (TO_CHAR(book.end_time - INTERVAL '1' HOUR, 'HH24:MI') BETWEEN :` + strconv.Itoa(placeholderIndex+6) + ` AND :` + strconv.Itoa(placeholderIndex+7) + `)
-				OR (TO_CHAR(book.start_time, 'HH24:MI') < :` + strconv.Itoa(placeholderIndex+8) + ` AND TO_CHAR(book.end_time, 'HH24:MI') > :` + strconv.Itoa(placeholderIndex+9) + `)
-				OR (:` + strconv.Itoa(placeholderIndex+10) + ` < TO_CHAR(book.end_time, 'HH24:MI') AND :` + strconv.Itoa(placeholderIndex+11) + ` > TO_CHAR(book.start_time, 'HH24:MI'))
-				OR (:` + strconv.Itoa(placeholderIndex+12) + ` >= TO_CHAR(book.end_time, 'HH24:MI') AND :` + strconv.Itoa(placeholderIndex+13) + ` < TO_CHAR(book.start_time, 'HH24:MI'))
+				($` + strconv.Itoa(placeholderIndex+2) + ` BETWEEN TO_CHAR(book.start_time, 'HH24:MI') AND TO_CHAR(book.end_time - INTERVAL '1' HOUR, 'HH24:MI')) 
+				OR ($` + strconv.Itoa(placeholderIndex+3) + ` BETWEEN TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') AND TO_CHAR(book.end_time, 'HH24:MI')) 
+				OR (TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') BETWEEN $` + strconv.Itoa(placeholderIndex+4) + ` AND $` + strconv.Itoa(placeholderIndex+5) + `)
+				OR (TO_CHAR(book.end_time - INTERVAL '1' HOUR, 'HH24:MI') BETWEEN $` + strconv.Itoa(placeholderIndex+6) + ` AND $` + strconv.Itoa(placeholderIndex+7) + `)
+				OR (TO_CHAR(book.start_time, 'HH24:MI') < $` + strconv.Itoa(placeholderIndex+8) + ` AND TO_CHAR(book.end_time, 'HH24:MI') > $` + strconv.Itoa(placeholderIndex+9) + `)
+				OR ($` + strconv.Itoa(placeholderIndex+10) + ` < TO_CHAR(book.end_time, 'HH24:MI') AND $` + strconv.Itoa(placeholderIndex+11) + ` > TO_CHAR(book.start_time, 'HH24:MI'))
+				OR ($` + strconv.Itoa(placeholderIndex+12) + ` >= TO_CHAR(book.end_time, 'HH24:MI') AND $` + strconv.Itoa(placeholderIndex+13) + ` < TO_CHAR(book.start_time, 'HH24:MI'))
 			)
 		)`
 
@@ -253,24 +262,24 @@ func checkRoomAvailability(date, startTime, endTime, selectedRoom, selectedBuild
 		query += ` WHERE 1 = 1 `
 	}
 	if selectedBuilding != "" {
-		query += ` AND b.name = :` + strconv.Itoa(placeholderIndex+1)
+		query += ` AND b.name = $` + strconv.Itoa(placeholderIndex+1)
 		params = append(params, selectedBuilding)
 		placeholderIndex += 1
 
 	}
 	if selectedFloor != "" {
-		query += ` AND f.name = :` + strconv.Itoa(placeholderIndex+1)
+		query += ` AND f.name = $` + strconv.Itoa(placeholderIndex+1)
 		params = append(params, selectedFloor)
 		placeholderIndex += 1
 	}
 	if selectedRoom != "" {
 
-		query += ` AND r.name = :` + strconv.Itoa(placeholderIndex+1)
+		query += ` AND r.name = $` + strconv.Itoa(placeholderIndex+1)
 		params = append(params, selectedRoom)
 		placeholderIndex += 1
 	}
 	if selectedType != "" {
-		query += ` AND rt.name = :` + strconv.Itoa(placeholderIndex+1)
+		query += ` AND rt.name = $` + strconv.Itoa(placeholderIndex+1)
 		params = append(params, selectedType)
 		placeholderIndex += 1
 	}
@@ -278,7 +287,7 @@ func checkRoomAvailability(date, startTime, endTime, selectedRoom, selectedBuild
 		cap, err := strconv.Atoi(selectedPeople)
 		if err != nil {
 		}
-		query += ` AND r.cap >= :` + strconv.Itoa(placeholderIndex+1)
+		query += ` AND r.cap >= $` + strconv.Itoa(placeholderIndex+1)
 		params = append(params, cap)
 		placeholderIndex += 1
 	}

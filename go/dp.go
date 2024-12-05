@@ -18,7 +18,7 @@ func AddDepartment(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "Cannot parse JSON"})
 	}
 
-	_, err := db.Exec("INSERT INTO department (id, name) VALUES (:1, :2)", dept.ID, dept.Name)
+	_, err := db.Exec("INSERT INTO department (id, name) VALUES ($1, $2)", dept.ID, dept.Name)
 	if err != nil {
 		fmt.Println("Error adding department:", err)
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to add department"})
@@ -48,18 +48,18 @@ func UpdateDepartment(c *fiber.Ctx) error {
 	fmt.Println("dept.ID", dept.ID)
 
 	// อัปเดต ID และ Name ในแถวที่ตรงกับ deptID
-	_, err := db.Exec("UPDATE employee SET dept_id = NULL WHERE dept_id = :2", deptID)
+	_, err := db.Exec("UPDATE employee SET dept_id = NULL WHERE dept_id = $2", deptID)
 	if err != nil {
 		fmt.Println("Error updating employee:", err)
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to update department"})
 	}
-	_, err2 := db.Exec("UPDATE department SET id = :1, name = :2 WHERE id = :3", dept.ID, dept.Name, deptID)
+	_, err2 := db.Exec("UPDATE department SET id = $1, name = $2 WHERE id = $3", dept.ID, dept.Name, deptID)
 	if err2 != nil {
 		fmt.Println("Error updating department:", err2)
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to update department"})
 
 	}
-	_, err3 := db.Exec("UPDATE employee SET dept_id = :1 WHERE dept_id IS NULL", dept.ID)
+	_, err3 := db.Exec("UPDATE employee SET dept_id = $1 WHERE dept_id IS NULL", dept.ID)
 	if err3 != nil {
 		fmt.Println("Error updating employee2:", err3)
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to update department"})
@@ -72,7 +72,7 @@ func UpdateDepartment(c *fiber.Ctx) error {
 func DeleteDepartment(c *fiber.Ctx) error {
 	deptID := c.Params("id")
 
-	_, err := db.Exec("DELETE FROM department WHERE id = :1", deptID)
+	_, err := db.Exec("DELETE FROM department WHERE id = $1", deptID)
 	if err != nil {
 		fmt.Println("Error deleting department:", err)
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to delete department"})

@@ -10,7 +10,7 @@ function EmployeeManagement() {
     name: "",
     lname: "",
     nlock: "0", // ตั้งค่าเริ่มต้นเป็น 0
-    sex: "ชาย",
+    sex: "Male",
     email: "",
     password: "",
     dept_id: "",
@@ -18,6 +18,8 @@ function EmployeeManagement() {
     img: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [showEditImageModal, setShowEditImageModal] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const [editEmployee, setEditEmployee] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -27,52 +29,107 @@ function EmployeeManagement() {
   const [errorMessage, setErrorMessage] = useState(""); // For error message
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-
-    const fetchEmployees = async () => {
-      const response = await axios.get("http://localhost:5020/employees",{
-        headers: {
-          Authorization: `Bearer ${token}`, 
-        }
-      });;
-      console.log("response",response.data)
-      setEmployees(response.data);
-    };
-
-    const fetchRolesAndDepartments = async () => {
-      try {
-        const rolesResponse = await axios.get("http://localhost:5020/Roles",{
-          headers: {
-            Authorization: `Bearer ${token}`, 
-          }
-        });;
-        console.log(rolesResponse.data)
-        const departmentsResponse = await axios.get("http://localhost:5020/departments",{
-          headers: {
-            Authorization: `Bearer ${token}`, 
-          }
-        });;
-        setRoles(rolesResponse.data);
-        setDepartments(departmentsResponse.data);
-      } catch (error) {
-        console.error("Error fetching roles or departments:", error);
-      }
-    };
 
     fetchEmployees();
     fetchRolesAndDepartments();
   }, []);
+  const token = localStorage.getItem('token');
+
+  const fetchEmployees = async () => {
+    const response = await axios.get("http://localhost:5020/employees", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    });;
+    console.log("response", response.data)
+    setEmployees(response.data);
+  };
+
+  const fetchRolesAndDepartments = async () => {
+    try {
+      const rolesResponse = await axios.get("http://localhost:5020/Roles", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });;
+      console.log(rolesResponse.data)
+      const departmentsResponse = await axios.get("http://localhost:5020/departments", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });;
+      setRoles(rolesResponse.data);
+      setDepartments(departmentsResponse.data);
+    } catch (error) {
+      console.error("Error fetching roles or departments:", error);
+    }
+  };
+  const handleImageUpload = async (e, employeeId) => {
+
+    if (!newEmployee.img) {
+      setErrorMessage("ไม่มีไฟล์รูปภาพให้ส่ง");
+
+      return;
+    }
+
+    // ตรวจสอบขนาดไฟล์
+    if (newEmployee.img.size > 200 * 1024) { // 200 KB
+      setErrorMessage("ไฟล์ต้องมีขนาดไม่เกิน 200 KB");
+      return;
+    }
+    const token = localStorage.getItem('token');
+
+
+
+    const formData = new FormData();
+    formData.append("image", newEmployee.img);
+
+    try {
+      const response = await axios.put(`http://localhost:5020/employees/${editEmployee.id}/upload`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
+
+
+      if (response.ok) {
+        const updatedEmployee = await response.json();
+        setFilteredEmployees((prev) =>
+          prev.map((emp) => (emp.id === employeeId ? updatedEmployee : emp))
+        );
+        setShowEditImageModal(false);
+      } else {
+        console.error("การอัปโหลดล้มเหลว");
+      }
+    } catch (error) {
+      console.error("เกิดข้อผิดพลาด:", error);
+    }
+    setShowEditImageModal(false)
+    fetchEmployees();
+  };
 
   const addNewEmployee = async () => {
     const sameemail = employees.find(emp => emp.email === newEmployee.email)
-    if (sameemail) {
-      setErrorMessage("มีการใช้ Email  "+ sameemail.email+"แล้ว");
-      return;
-        }
-    if ( !newEmployee.name || !newEmployee.lname || !newEmployee.email || !newEmployee.password || !newEmployee.dept_id || !newEmployee.role_id) {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!newEmployee.name || !newEmployee.lname || !newEmployee.email || !newEmployee.password || !newEmployee.dept_id || !newEmployee.role_id) {
       setErrorMessage("กรุณากรอกข้อมูลในทุกช่องให้ครบถ้วน");
       return;
     }
+    if (!emailRegex.test(newEmployee.email)) {
+      setErrorMessage('กรุณากรอกอีเมลให้ถูกต้อง เช่น yourname@gmail.com');
+      return;
+    }
+    if (sameemail) {
+      setErrorMessage("มีการใช้ Email  " + sameemail.email + "แล้ว");
+      return;
+    }
+
+    if (newEmployee.password.length < 6) {
+      setErrorMessage("รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัว");
+      return;
+    }
+
+
     const token = localStorage.getItem('token');
 
 
@@ -90,41 +147,44 @@ function EmployeeManagement() {
     if (newEmployee.img) {
       formData.append("img", newEmployee.img); // ตรวจสอบว่าค่า newEmployee.img เป็นไฟล์
     }
-  
+
     try {
       console.log("Sending data to API (Add):", formData);
-      await axios.post("http://localhost:5020/employees", formData,{
+      const response = await axios.post("http://localhost:5020/employees", formData, {
         headers: {
-          Authorization: `Bearer ${token}`, 
+          Authorization: `Bearer ${token}`,
         }
       });;
-      setEmployees([...employees, formData]);
-      setShowModal(false);
+
       setErrorMessage("");
+      setShowModal(false)
+      setConfirmPassword('')
+      fetchEmployees();
+
     } catch (error) {
       console.error("Error adding employee:", error);
       setErrorMessage("ไม่สามารถเพิ่มพนักงานได้ กรุณาลองอีกครั้ง");
     }
   };
 
-const updateEmployee = async () => {
-    console.log("employees",employees)
+  const updateEmployee = async () => {
+    console.log("employees", employees)
     const sameemail = employees.find(emp => emp.email === newEmployee.email)
-   
+
     if (!newEmployee.id || !newEmployee.name || !newEmployee.lname || !newEmployee.email || !newEmployee.password || !newEmployee.dept_id || !newEmployee.role_id) {
       setErrorMessage("กรุณากรอกข้อมูลในทุกช่องzให้ครบถ้วน");
       return;
     }
-    if(sameemail){
-      console.log("sameemail",sameemail)
+    if (sameemail) {
+      console.log("sameemail", sameemail)
 
-    if (sameemail.id != newEmployee.id) {
-      console.log("in")
+      if (sameemail.id != newEmployee.id) {
+        console.log("in")
 
-      setErrorMessage("มีการใช้ Email  "+ sameemail.email+"แล้ว");
-      return;
-        }
+        setErrorMessage("มีการใช้ Email  " + sameemail.email + "แล้ว");
+        return;
       }
+    }
     const token = localStorage.getItem('token');
 
     const formattedEmployee = {
@@ -133,10 +193,10 @@ const updateEmployee = async () => {
       dept_id: parseInt(newEmployee.dept_id, 10),
       role_id: parseInt(newEmployee.role_id, 10),
     };
-    console.log("editEmployee.id",editEmployee.id)
-    console.log("formattedEmployee",formattedEmployee)
+    console.log("editEmployee.id", editEmployee.id)
+    console.log("formattedEmployee", formattedEmployee)
 
-    
+
 
     try {
       const formData = new FormData();
@@ -149,13 +209,11 @@ const updateEmployee = async () => {
       formData.append("password", newEmployee.password);
       formData.append("dept_id", parseInt(newEmployee.dept_id, 10));
       formData.append("role_id", parseInt(newEmployee.role_id, 10));
-      if (newEmployee.img) {
-        formData.append("img", newEmployee.img); 
-      }
+
       console.log("Sending data to API (Update):", formattedEmployee);
-      await axios.put(`http://localhost:5020/employees/${editEmployee.id}`, formData,{
+      await axios.put(`http://localhost:5020/employees/${editEmployee.id}`, formData, {
         headers: {
-          Authorization: `Bearer ${token}`, 
+          Authorization: `Bearer ${token}`,
         }
       });;
 
@@ -177,9 +235,9 @@ const updateEmployee = async () => {
 
     if (window.confirm("คุณต้องการลบพนักงานคนนี้ใช่หรือไม่?")) {
       try {
-        await axios.delete(`http://localhost:5020/employees/${id}`,{
+        await axios.delete(`http://localhost:5020/employees/${id}`, {
           headers: {
-            Authorization: `Bearer ${token}`, 
+            Authorization: `Bearer ${token}`,
           }
         });;
         setEmployees(employees.filter((employee) => employee.id !== id));
@@ -189,16 +247,17 @@ const updateEmployee = async () => {
     }
   };
 
-  
+
 
   const filteredEmployees = employees.filter(
     (employee) =>
-      employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.id.toString().includes(searchTerm.toLowerCase()) ||
-      employee.lname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.role_name.toLowerCase().includes(searchTerm.toLowerCase())
+      (employee.name && employee.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (employee.id && employee.id.toString().includes(searchTerm.toLowerCase())) ||
+      (employee.lname && employee.lname.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (employee.email && employee.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (employee.role_name && employee.role_name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
   const closetab = async () => {
     setEditEmployee(null)
     setShowModal(false)
@@ -219,20 +278,21 @@ const updateEmployee = async () => {
           />
         </div>
         <div className="col-md-6 text-end">
-          <button className="btn btn-primary btn-lg" onClick={() =>
-           {setNewEmployee({ id: "",
-            name: "",
-            lname: "",
-            nlock: "0", // ตั้งค่าเริ่มต้นเป็น 0
-            sex: "ชาย",
-            email: "",
-            password: "",
-            dept_id: "",
-            role_id: "",
-            img: "",
-          });
+          <button className="btn btn-primary btn-lg" onClick={() => {
+            setNewEmployee({
+              id: "",
+              name: "",
+              lname: "",
+              nlock: "0", // ตั้งค่าเริ่มต้นเป็น 0
+              sex: "Male",
+              email: "",
+              password: "",
+              dept_id: "",
+              role_id: "",
+              img: "",
+            });
             setShowModal(true);
-            
+
 
           }}>
             เพิ่มพนักงาน
@@ -246,13 +306,29 @@ const updateEmployee = async () => {
           {filteredEmployees.map((employee) => (
             <div key={employee.id} className="card mb-4 shadow-sm border-0">
               <div className="row g-0">
-                <div className="col-md-2 d-flex align-items-center ms-3">
+                <div className="col-md-2 d-flex flex-column align-items-center ms-3">
                   <img
                     src={employee.profile_image || "path_to_placeholder_image"}
                     alt="Employee"
                     className="img-fluid rounded-circle border border-dark border-2"
                     style={{ objectFit: "cover", height: "130px", width: "140px" }}
                   />
+                  {/* ปุ่มแก้ไขรูปภาพ */}
+                  {employee.id ==1 && (
+                    <>
+                      <button
+                        className="btn btn-warning mt-2"
+                        style={{ width: '140px' }}
+                        onClick={() => {
+                          setEditEmployee(employee);
+                          setShowEditImageModal(true); // เปิด Modal สำหรับแก้ไขรูปภาพ
+                        }}
+                      >
+                        แก้ไขรูปภาพ
+                      </button>
+                    </>
+                  )
+                  }
                 </div>
                 <div className="col-md-6 d-flex align-items-center">
                   <div className="card-body">
@@ -261,37 +337,45 @@ const updateEmployee = async () => {
                     </h5>
                     <p>รหัสพนักงาน : {employee.id}</p>
                     <p>Email : {employee.email}</p>
-
-
                     <p>ตำแหน่ง : {employee.role_name}</p>
                   </div>
                 </div>
                 <div className="col-md-3 d-flex flex-column align-items-end">
-                  <button
-                    className="btn btn-secondary mb-2 mt-3"
-                    style={{ width: '200px' }}
-                    onClick={() => {
-                      setEditEmployee(employee);
-                      setNewEmployee(employee); // กำหนดข้อมูลพนักงานที่จะแก้ไข
-                      setShowModal(true);
-                    }}
-                  >
-                    แก้ไขข้อมูล
-                  </button>
-                  <button
-                    className="btn btn-danger mb-2"
-                    style={{ width: '200px' }}
-                    onClick={() => deleteEmployee(employee.id)}
-                  >
-                    ลบพนักงาน
-                  </button>
-                  <button
-                    className="btn btn-info mb-2"
-                    style={{ width: '200px' }}
-                    onClick={() => setShowDetails(employee)}
-                  >
-                    แสดงรายละเอียด
-                  </button>
+                  {employee.id != 1 ? (
+                    <div
+                      className="text-secondary fs-5">   เนื่องจากเว็บไซต์นี้เปิดให้ผู้ใช้ทุกคนเข้าถึงได้ ปุ่มแก้ไขและลบจึงถูกปิดใช้งาน ยกเว้นพนักงานตัวอย่างเพื่อแสดงการใช้งานในกรณีที่มีสิทธิ์แก้ไข
+
+                    </div>
+                  ) : (
+
+                    <>
+                      <button
+                        className="btn btn-secondary mb-2 mt-3"
+                        style={{ width: '200px' }}
+                        onClick={() => {
+                          setEditEmployee(employee);
+                          setNewEmployee(employee); // กำหนดข้อมูลพนักงานที่จะแก้ไข
+                          setShowModal(true);
+                        }}
+                      >
+                        แก้ไขข้อมูล
+                      </button>
+                      <button
+                        className="btn btn-danger mb-2"
+                        style={{ width: '200px' }}
+                        onClick={() => deleteEmployee(employee.id)}
+                      >
+                        ลบพนักงาน
+                      </button>
+                      <button
+                        className="btn btn-info mb-2"
+                        style={{ width: '200px' }}
+                        onClick={() => setShowDetails(employee)}
+                      >
+                        แสดงรายละเอียด
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -313,29 +397,30 @@ const updateEmployee = async () => {
               <div className="modal-body">
                 {/* Error message */}
                 {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
-                {editEmployee && 
-                <>
-                <div className="mb-3">
-                  <label>รหัสพนักงาน</label>
-                  <div style={{ border: "1px solid black",borderRadius : "4%",
+                {editEmployee &&
+                  <>
+                    <div className="mb-3">
+                      <label>รหัสพนักงาน</label>
+                      <div style={{
+                        border: "1px solid black", borderRadius: "4%",
                         backgroundColor: "#f8f9fa"
-                  }} 
-                  className='p-2'>
-                    {newEmployee.id}
+                      }}
+                        className='p-2'>
+                        {newEmployee.id}
+                      </div>
                     </div>
-                </div>
-                </>}
-                
+                  </>}
+
                 <div className="mb-3">
                   <label>ชื่อ</label>
                   <input
                     type="text"
-                    pattern="[A-Za-z]+" 
+                    pattern="[A-Za-z]+"
                     onKeyDown={(e) => {
                       if (/[0-9]/.test(e.key)) {
-                        e.preventDefault(); 
-                      }                
-                    }}    
+                        e.preventDefault();
+                      }
+                    }}
                     className="form-control"
                     value={newEmployee.name}
                     onChange={(e) => setNewEmployee({ ...newEmployee, name: e.target.value })}
@@ -349,9 +434,9 @@ const updateEmployee = async () => {
                     value={newEmployee.lname}
                     onKeyDown={(e) => {
                       if (/[0-9]/.test(e.key)) {
-                        e.preventDefault(); 
-                      }                
-                    }}    
+                        e.preventDefault();
+                      }
+                    }}
                     onChange={(e) => setNewEmployee({ ...newEmployee, lname: e.target.value })}
                   />
                 </div>
@@ -362,40 +447,77 @@ const updateEmployee = async () => {
                     value={newEmployee.sex}
                     onChange={(e) => setNewEmployee({ ...newEmployee, sex: e.target.value })}
                   >
-                    <option value="ชาย">ชาย</option>
-                    <option value="หญิง">หญิง</option>
+                    <option value="Male">ชาย</option>
+                    <option value="Female">หญิง</option>
                   </select>
                 </div>
-                <div className="mb-3">
-                  <label>อีเมล</label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                {editEmployee ? (
+                  <>
+                    <div className="mb-3">
+                      <label>อีเมล</label>
+                      <div style={{
+                        border: "1px solid black", borderRadius: "4%",
+                        backgroundColor: "#f8f9fa"
+                      }}
+                        className='p-2'>
+                        {newEmployee.email}
+                      </div>
+                    </div>
+                    <div className="mb-3">
+                      <label>รหัสผ่าน</label>
+                      <div style={{
+                        border: "1px solid black", borderRadius: "4%",
+                        backgroundColor: "#f8f9fa", type: 'password'
+                      }}
+                        className='p-2'>
+                        {"*".repeat(newEmployee.password.length)}
+                      </div>
+                    </div>
+                  </>) : (
+                  <>
+                    <div className="mb-3">
+                      <label>อีเมล</label>
+                      <input
+                        type="email"
+                        className="form-control"
+                        pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
 
 
-                    value={newEmployee.email}
-                    onChange={(e) => setNewEmployee({ ...newEmployee, email: e.target.value })}
-                  />
-                </div>
-                <div className="mb-3">
-                  <label>รหัสผ่าน</label>
-                  <input type={showPassword ? 'text' : 'password'} 
-                    className="form-control"
-                    value={newEmployee.password}
-                    onChange={(e) => setNewEmployee({ ...newEmployee, password: e.target.value })}
-                  />
-                </div>
-                <div className="form-check form-switch mb-3">
-            <input className="form-check-input" 
-                   type="checkbox" 
-                   id="showPasswordSwitch" 
-                   checked={showPassword} 
-                   onChange={() => setShowPassword(!showPassword)} />
-            <label className="form-check-label" htmlFor="showPasswordSwitch">
-              แสดงรหัสผ่าน
-            </label>
-          </div>
+                        value={newEmployee.email}
+                        onChange={(e) => setNewEmployee({ ...newEmployee, email: e.target.value })}
+                      />
+                    </div>
+                    <div className="mb-3">
+                      <label>รหัสผ่าน</label>
+                      <input type={showPassword ? 'text' : 'password'}
+                        className="form-control"
+                        value={newEmployee.password}
+                        onChange={(e) => setNewEmployee({ ...newEmployee, password: e.target.value })}
+                      />
+                    </div>
+                    <div className="mb-3">
+                      <label>ยืนยันรหัสผ่าน</label>
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        className="form-control"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                      />
+                    </div>
+                    <div className="form-check form-switch mb-3">
+                      <input className="form-check-input"
+                        type="checkbox"
+                        id="showPasswordSwitch"
+                        checked={showPassword}
+                        onChange={() => setShowPassword(!showPassword)} />
+                      <label className="form-check-label" htmlFor="showPasswordSwitch">
+                        แสดงรหัสผ่าน
+                      </label>
+                    </div>
+                  </>
+                )}
+
+
                 <div className="mb-3">
                   <label>แผนก</label>
                   <select
@@ -426,21 +548,7 @@ const updateEmployee = async () => {
                     ))}
                   </select>
                 </div>
-                <div className="mb-3">
-                  <label>เลือกรูปภาพ</label>
-                  <input
-                    type="file"
-                    className="form-control"
-                    // onChange={handleFileChange}
-                    onChange={(e) => {
-                      setNewEmployee({
-                        ...newEmployee,
-                        img: e.target.files[0], // อัปเดต URL รูปภาพทันที
-                        check: 1,
-                      });
-                    }}
-                  />
-                </div>
+
               </div>
               <div className="modal-footer">
                 <button className="btn btn-secondary" onClick={closetab}>
@@ -480,7 +588,8 @@ const updateEmployee = async () => {
                 <p>รหัสล็อก: {showDetails.nlock}</p> {/* แสดงรหัสล็อกที่นี่ */}
                 <p>เพศ: {showDetails.sex}</p>
                 <p>อีเมล: {showDetails.email}</p>
-                <p>รหัสผ่าน: {showDetails.password}</p>
+                <p>รหัสผ่าน:{"*".repeat(newEmployee.password.length)}
+                </p>
                 <p>แผนก: {showDetails.dept_name}</p>
                 <p>ตำแหน่ง: {showDetails.role_name}</p>
                 {showDetails.img && (
@@ -506,6 +615,55 @@ const updateEmployee = async () => {
           </div>
         </div>
       )}
+      {showEditImageModal && (
+        <div className="modal d-block" tabIndex="-1">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+
+                <h5 className="modal-title">แก้ไขรูปภาพ</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowEditImageModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    setNewEmployee({
+                      ...newEmployee,
+                      img: e.target.files[0], // อัปเดต URL รูปภาพทันที
+                      check: 1,
+                    });
+                  }}
+                />
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={() => setShowEditImageModal(false)}
+                >
+                  ปิด
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  onClick={handleImageUpload}
+                >
+                  ตกลง
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

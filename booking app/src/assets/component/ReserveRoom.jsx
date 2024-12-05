@@ -68,16 +68,29 @@ function ReserveRoom() {
           fetchUserBookings(),
           fetchRoomAddresses(),
         ]);
-        console.log("response",roomsData)
-
-
+        console.log("bookingsData", bookingsData);
+    
         // Combine the data based on room ID
         const formattedRooms = bookingsData.map((booking) => {
           const room = roomsData.find((room) => room.id === booking.room_id);
           const address = room
             ? addressData.find((address) => address.id === room.address_id)
             : null;
-
+    
+          // ฟังก์ชันแปลงเวลาให้แสดงเวลาในรูปแบบ UTC +07:00
+          const formatTime = (time) => {
+            const date = new Date(time);
+            
+            date.setHours(date.getHours() - 7);
+            
+            return date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          };
+          
+          const formatDate = (dateStr) => {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString("th-TH"); // แปลงวันที่เป็นรูปแบบไทย
+          };
+    
           return {
             id: room ? room.id : booking.room_id,
             name: room ? room.name : `Room ${booking.room_id}`,
@@ -88,19 +101,20 @@ function ReserveRoom() {
             statusColor: mapStatusToLabel(booking.status_id).color,
             type: room ? room.room_type_id : "General",
             capacity: room ? `${room.cap}` : "15 - 20 people",
-            img: room? room.roompic:RoomImage,
-            type_name : room? `${room.room_type_name}` : "Error",
-            date: new Date(booking.start_time).toLocaleDateString("th-TH"),
-            time: `${new Date(booking.start_time).toLocaleTimeString("th-TH")} - ${new Date(booking.end_time).toLocaleTimeString("th-TH")}`,
+            img: room ? room.roompic : RoomImage,
+            type_name: room ? `${room.room_type_name}` : "Error",
+            date: formatDate(booking.start_time), // แปลงเป็นวันที่
+            time: `${formatTime(booking.start_time)} - ${formatTime(booking.end_time)}`, // แปลงเป็นเวลา
             bookingID: booking.id
           };
         });
-
+    
         setRooms(formattedRooms);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
+    
 
     fetchData();
   }, []);
@@ -259,7 +273,21 @@ function ReserveRoom() {
             flexDirection: "column",
             gap: "20px",
           }}
-        >
+        >{filteredRooms.length === 0 ? (
+          <>
+          <div
+            style={{
+              textAlign: "center",
+              color: "gray",
+              marginTop: "20px",
+              fontSize: "18px",
+            }}
+          >
+            ยังไม่มีประวัติการใช้ห้อง
+          </div>
+          </>
+        ) : (
+          <>
           {filteredRooms.map((room, index) => (
             <div
               key={index}
@@ -356,6 +384,8 @@ function ReserveRoom() {
               </div>
             </div>
           ))}
+          </>
+        )}
         </div>
       </div>
     </div>

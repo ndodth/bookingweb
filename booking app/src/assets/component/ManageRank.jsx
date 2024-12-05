@@ -63,8 +63,8 @@ function PositionManagement() {
       const permissionsToDelete = selectedDropdown;
 
       if (!selectedDropdown) {
-          alert("กรุณาเลือกสิทธิ์ที่ต้องการลบ");
-          return;
+        alert("กรุณาเลือกสิทธิ์ที่ต้องการลบ");
+        return;
       }
 
       console.log("Permissions to Delete:", permissionsToDelete);
@@ -153,9 +153,9 @@ function PositionManagement() {
         name: positionName,
         role_access: selectedPermissions, // Assuming you want to set permissions while adding a position
       };
-      console.log("selectedPermissions",selectedPermissions)
+      console.log("selectedPermissions", selectedPermissions)
 
-      console.log("newPosition",newPosition)
+      console.log("newPosition", newPosition)
       await axios.post('http://localhost:5020/permissions', newPosition, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -172,16 +172,16 @@ function PositionManagement() {
   };
 
   //Deleterole
-  const confirmDeletePosition = async(position) => {
+  const confirmDeletePosition = async (position) => {
     console.log(position.id)
     const token = localStorage.getItem('token')
     if (window.confirm(`ต้องการลบตำแหน่ง ${position.name}?`)) {
       // ส่งคำขอลบไปยัง backend
       await axios.delete(`http://localhost:5020/deleterole/${position.id}`, {
-      
-          headers: { Authorization: `Bearer ${token}` }
-       
-      })      
+
+        headers: { Authorization: `Bearer ${token}` }
+
+      })
       fetchPositions()
 
     }
@@ -198,57 +198,68 @@ function PositionManagement() {
         <div className="col-sm-6">
           <h1 className="mb-0">จัดการตำแหน่ง</h1>
         </div>
-        <div className="col-sm-6 d-flex justify-content-end"> 
+        <div className="col-sm-6 d-flex justify-content-end">
           <button className="btn btn-success p-2 fs-4" onClick={() => setShowAddModal(true)}>เพิ่มตำแหน่ง</button>
         </div>
       </div>
 
       <div className="col-12 input-group mb-3">
-          <div className="col-md-5">
-            <input
-              type="text"
-              className="form-control form-control-lg"
-              placeholder="ค้นหาชื่อหรือรหัส"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          </div>
+        <div className="col-md-5">
+          <input
+            type="text"
+            className="form-control form-control-lg"
+            placeholder="ค้นหาชื่อหรือรหัส"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </div>
       {filteredpositions.length > 0 ? (
         filteredpositions.map((position) => (
           <div key={position.id} className="card mb-4">
             <div className="card-body">
               <h5 className="card-title">ตำแหน่ง: {position.name}</h5>
               <p className="card-text">รหัสตำแหน่ง: {position.id}</p>
-              <div style={{ float: 'right', textAlign: 'right', marginTop: '-4rem' }}>
-                <button
-                  className="btn btn-success mb-2 p-2 fs-4"
-                  onClick={() => handleShowModal(position)}
-                >
-                  เพิ่มสิทธิ์
-                </button>
-                <br />
-                <button
-                  className="btn btn-danger mb-2 p-2 fs-4"
-                  onClick={() => handleShowModalDelete(position)}
-                >ลบสิทธิ์
-                </button>
-                <br />
-            {position.id !=2 &&(
-              <>
-                <button
-                  className="btn btn-warning p-2 fs-4"
-                  onClick={() => confirmDeletePosition(position)}
-                >ลบตำแหน่ง
-                </button>
-                </>
-            )}
-              {position.id ==2 &&(
-              <>
-               <div className='fs-ภ text-Secondary'>*Staff ไม่สามารถลบได้</div>
-                </>
-            )}
-              </div>
+              {position.id != 4 ? (
+                <>
+                  <div style={{ float: 'right', textAlign: 'right', marginTop: '-4rem' }}>
+                    <button
+                      className="btn btn-success mb-2 p-2 fs-4"
+                      onClick={() => handleShowModal(position)}
+                    >
+                      เพิ่มสิทธิ์
+                    </button>
+                    <br />
+                    <button
+                      className="btn btn-danger mb-2 p-2 fs-4"
+                      onClick={() => handleShowModalDelete(position)}
+                    >ลบสิทธิ์
+                    </button>
+                    <br />
+                    {position.id != 2 && (
+                      <>
+                        <button
+                          className="btn btn-warning p-2 fs-4"
+                          onClick={() => confirmDeletePosition(position)}
+                        >ลบตำแหน่ง
+                        </button>
+                      </>
+                    )}
+                    {position.id == 2 && (
+                      <>
+                        <div className='fs-ภ text-Secondary'>*Staff ไม่สามารถลบได้</div>
+                      </>
+                    )}
+             
+                </div>
+                                    </>
+
+                ):( 
+                  <div style={{ float: 'right', textAlign: 'right', marginTop: '-4rem' }}
+                  className="fs-4">
+                   ****ปิดไว้สำหรับตำแหน่งนี้****
+                    </div>
+              )}
               <div className="mt-3">
                 <h6>สิทธิ์การเข้าถึงเมนู:</h6>
                 <ul>
@@ -337,10 +348,10 @@ function PositionManagement() {
                 <select className="form-select" value={selectedDropdown} onChange={handleSelectChange}>
                   <option value="">เลือกสิทธิ์</option>
                   {allPermission
-    .filter(permission => selectedPosition?.role_access.includes(permission.name))
-    .map(permission => (
-      <option key={permission.id} value={permission.name}>{permission.name}</option>
-    ))}
+                    .filter(permission => selectedPosition?.role_access.includes(permission.name))
+                    .map(permission => (
+                      <option key={permission.id} value={permission.name}>{permission.name}</option>
+                    ))}
                 </select>
               </div>
               <div className="modal-footer">
@@ -378,7 +389,7 @@ function PositionManagement() {
                 ></button>
               </div>
               <div className="modal-body">
-            
+
                 <div className="mb-3">
                   <label htmlFor="positionName" className="form-label">ชื่อตำแหน่ง</label>
                   <input

@@ -3,6 +3,8 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -109,20 +111,6 @@ func createRoomHandler(c *fiber.Ctx) error {
 	room.Name = c.FormValue("name")
 	room.Description = c.FormValue("description")
 
-	img, err := c.FormFile("image") // key image
-	if err != nil && err != fiber.ErrBadRequest {
-		fmt.Println(err)
-		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
-	}
-
-	if img != nil {
-		err = c.SaveFile(img, "../booking app/public/img/rooms/"+img.Filename)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
-		}
-		room.Roompic = img.Filename // เก็บชื่อไฟล์ภาพลงใน room.Roompic
-	}
-
 	if err := createRoom(room); err != nil {
 		fmt.Println("Error creating room:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -146,31 +134,13 @@ func updateRoomHandler(c *fiber.Ctx) error {
 
 	room := new(Room)
 
-	img, err := c.FormFile("image") // key image
-	if err != nil && err != fiber.ErrBadRequest {
-		fmt.Println(err)
-		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
-	}
-
 	err = c.BodyParser(room)
 	if err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
-	if img != nil {
-		err = c.SaveFile(img, "../booking app/public/img/rooms/"+img.Filename)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
-		}
-		room.Roompic = img.Filename // เก็บชื่อไฟล์ภาพใหม่ลงใน room.Roompic
-	}
-
 	room.RoomTypeID, _ = strconv.Atoi(c.FormValue("room_type_id"))
 	room.AddressID, _ = strconv.Atoi(c.FormValue("address_id"))
-
-	fmt.Println("id", id)
-	fmt.Println("before err = updateRoom(id, room) ")
-	fmt.Println("room", room)
 
 	err = updateRoom(id, room)
 	if err != nil {
@@ -185,13 +155,49 @@ func deleteRoomHandler(c *fiber.Ctx) error {
 	if err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
-	err = deleteRoom(id)
+	supabaseURL := os.Getenv("SUPABASE_URL1")
+	supabaseKey := os.Getenv("SUPABASE_SERVICE")
+
+	var oldFileName sql.NullString
+	err = db.QueryRow(`SELECT room_pic FROM room WHERE id = $1`, id).Scan(&oldFileName)
 	if err != nil {
-		return err
+		fmt.Println("Error fetching old room_pic:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch room data"})
 	}
-	return c.JSON(fiber.Map{
-		"message": "Delete Room Successfully",
-	})
+	if oldFileName.Valid && oldFileName.String != "" {
+		var usageCount int
+		err := db.QueryRow(`SELECT COUNT(*) FROM room WHERE room_pic = $1`, oldFileName).Scan(&usageCount)
+		if err != nil {
+			fmt.Println("Error checking usage count:", err)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to check usage count"})
+		}
+		if usageCount == 1 {
+			oldFilePath := fmt.Sprintf("room-pictures/%s", oldFileName)
+			deleteURL := fmt.Sprintf("%s/storage/v1/object/%s", supabaseURL, oldFilePath)
+			req, err := http.NewRequest("DELETE", deleteURL, nil)
+			if err != nil {
+				fmt.Println("Error creating DELETE request:", err)
+				return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete old file"})
+			}
+
+			req.Header.Set("Authorization", "Bearer "+supabaseKey)
+			client := &http.Client{}
+			resp, err := client.Do(req)
+			if err != nil || (resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent) {
+				body, _ := io.ReadAll(resp.Body)
+				fmt.Println("Error deleting file:", string(body))
+			}
+			defer resp.Body.Close()
+		}
+	}
+
+	_, err = db.Exec("DELETE FROM room WHERE id = $1", id)
+	if err != nil {
+		fmt.Println("Error deleting employee:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete employee"})
+	}
+
+	return c.JSON(fiber.Map{"message": "Employee deleted successfully"})
 }
 
 func getRoomTypesHandler(c *fiber.Ctx) error {
@@ -260,27 +266,27 @@ func getMenusHandler(c *fiber.Ctx) error {
 	return c.JSON(menus)
 }
 
-func uploadImageRoomHandler(c *fiber.Ctx) error {
-	img, err := c.FormFile("image") // key image // value path file
-	if err != nil {
-		fmt.Println(err)
-		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
-	}
-	id, err := strconv.Atoi(c.Params("id"))
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
-	}
-	err = c.SaveFile(img, "../booking app/public/img/rooms/"+img.Filename)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
-	}
-	path := "../booking app/public/img/rooms/" + img.Filename
-	err = uploadImageRoom(path, id)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString("Error reading file content: " + err.Error())
-	}
-	return c.SendString("File uploaded successfully")
-}
+// func uploadImageRoomHandler(c *fiber.Ctx) error {
+// 	img, err := c.FormFile("image") // key image // value path file
+// 	if err != nil {
+// 		fmt.Println(err)
+// 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+// 	}
+// 	id, err := strconv.Atoi(c.Params("id"))
+// 	if err != nil {
+// 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+// 	}
+// 	err = c.SaveFile(img, "../booking app/public/img/rooms/"+img.Filename)
+// 	if err != nil {
+// 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+// 	}
+// 	path := "../booking app/public/img/rooms/" + img.Filename
+// 	err = uploadImageRoom(path, id)
+// 	if err != nil {
+// 		return c.Status(fiber.StatusInternalServerError).SendString("Error reading file content: " + err.Error())
+// 	}
+// 	return c.SendString("File uploaded successfully")
+// }
 
 func getImageRoomHandler(c *fiber.Ctx) error {
 	idStr := c.Params("id")
@@ -459,32 +465,34 @@ func getRoomsAllBookedHandler(c *fiber.Ctx) error {
 func loginHandler(c *fiber.Ctx) error {
 	fmt.Println("test")
 
+	// รับข้อมูลผู้ใช้
 	user := new(User)
 	if err := c.BodyParser(user); err != nil {
 		fmt.Println("BodyParser")
-
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
 
-	if err := verifyUser(user.Email, user.Password); err != nil {
-		fmt.Println("verifyUser")
-
-		return err
+	// ตรวจสอบการล็อกอินจาก Supabase
+	if err := loginUser(user.Email, user.Password); err != nil {
+		fmt.Println("loginUser")
+		return c.Status(fiber.StatusUnauthorized).SendString(err.Error())
 	}
-	// Create token
+
+	// สร้าง JWT token
 	token := jwt.New(jwt.SigningMethodHS256)
 
-	// Set claims
+	// ตั้งค่า claims
 	claims := token.Claims.(jwt.MapClaims)
 	claims["Email"] = user.Email
 	claims["Exp"] = time.Now().Add(time.Hour * 72).Unix()
 
-	// Generate encoded token and send it as response.
+	// เซ็นต์และสร้าง token
 	t, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
+	// ส่งกลับ token พร้อมข้อความสำเร็จ
 	return c.JSON(fiber.Map{
 		"message": "Login Success",
 		"token":   t,
@@ -503,7 +511,7 @@ func bookRoomHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	err := db.QueryRow(`SELECT id FROM employee WHERE email = :1`, userEmail).Scan(&book.EmpID)
+	err := db.QueryRow(`SELECT id FROM employee WHERE email = $1`, userEmail).Scan(&book.EmpID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -580,7 +588,7 @@ func getHistoryBookingHandler(c *fiber.Ctx) error {
 	return c.JSON(booking)
 }
 
-// http://localhost:5020/reports/roomUsed
+// http://localhost:5020/reports/usedCanceled
 func getReportUsedCanceledHandler(c *fiber.Ctx) error {
 	report, err := getReportUsedCanceled()
 	if err != nil {
@@ -596,17 +604,16 @@ func getReportLockedEmployeesHandler(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 	report, err := getReportLockEmployee(dept_id)
-	fmt.Println(err)
 	if err != nil {
-		return c.SendStatus(fiber.StatusInternalServerError)
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	return c.JSON(report)
 }
 
-// http://localhost:5020/reports/roomUsed?room_id=3&date=2024-10-1
+// http://localhost:5020/reports/roomUsed?room_id=3&date=2024-10
 func getReportRoomUsedHandler(c *fiber.Ctx) error {
 	selectedRoom := c.Query("room_id", "")
-	selectedDate := c.Query("date", "")
+	selectedDate := c.Query("month", "")
 
 	booking, err := getReportRoomUsed(selectedRoom, selectedDate)
 	if err != nil {
@@ -634,33 +641,45 @@ func generateQRHandler(c *fiber.Ctx) error {
 
 func getImageQrHandler(c *fiber.Ctx) error {
 	idStr := c.Params("id")
+	supabaseURL := os.Getenv("SUPABASE_URL1")
+
 	// Convert id to int
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid ID format")
 	}
+	fmt.Println(id)
+	var imagePath sql.NullString
 
-	var imagePath string
-	query := `SELECT qr FROM booking WHERE id = :id`
+	query := `SELECT qr FROM booking WHERE id = $1`
 	err = db.QueryRow(query, id).Scan(&imagePath)
 	if err != nil {
+		fmt.Println("err", err)
+
 		return c.Status(fiber.StatusNotFound).SendString("Image not found: " + err.Error())
 	}
-	imageData, err := os.Open(imagePath)
-	if err != nil {
-		return c.Status(fiber.StatusNotFound).SendString("Image not found: " + err.Error())
+	var path_file string
+
+	if imagePath.Valid {
+		// ถ้ามีค่า profile_pic จะเป็น URL ของภาพที่เก็บใน Supabase
+		path_file = imagePath.String
+	} else {
+		// ถ้าไม่มีค่ากำหนดเป็นภาพเริ่มต้น
+		path_file = "profile.png"
 	}
-	defer imageData.Close()
-	// Set the content type as image/jpeg (adjust based on your image type)
-	c.Set("Content-Type", getImageContentType(imagePath))
-	return c.SendFile(imagePath)
+
+	img := supabaseURL + "/storage/v1/object/public/qr_codes/" + path_file
+	fmt.Println("path", img)
+	return c.JSON(fiber.Map{
+		"image_url": img,
+	})
 }
 
 func amILocked(c *fiber.Ctx) error {
 	token := c.Locals(userContextKey).(*Auth)
 	userEmail := token.Email
 	var nlock int
-	err := db.QueryRow("SELECT nlock FROM employee WHERE email=:1", userEmail).Scan(&nlock)
+	err := db.QueryRow("SELECT nlock FROM employee WHERE email=$1", userEmail).Scan(&nlock)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}

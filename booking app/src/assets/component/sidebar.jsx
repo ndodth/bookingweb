@@ -237,7 +237,7 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
                             </Link>
                         </li>
                         </>)}
-                        {/* {isLoggedIn &&Permission.some(permission => permission.menu_id === 2) && (
+                        {isLoggedIn &&Permission.some(permission => permission.menu_id === 2) && (
                             <>
                         <li className="nav-item mb-3">
                             <Link 
@@ -255,7 +255,7 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
                                 รายงาน
                             </Link>
                         </li>
-                        </>)} */}
+                        </>)}
                         {isLoggedIn &&Permission.some(permission => permission.menu_id === 3) && (
 <>
                         <li className="nav-item mb-3">

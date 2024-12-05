@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	_ "github.com/sijms/go-ora/v2"
@@ -13,20 +14,25 @@ func getProfile(email string) (*EmployeeInfo, error) {
 	fmt.Println("getProfile")
 	var profiletmp sql.NullString
 	employeeInfo := &EmployeeInfo{}
+	supabaseURL := os.Getenv("SUPABASE_URL1")
 
 	err := db.QueryRow(`SELECT e.id, e.name, e.lname, e.dept_id, er.name AS role_name, dp.name AS dept_name, e.sex, e.email, e.profile_pic
 			FROM EMPLOYEE e
 			JOIN EMPLOYEE_ROLE er ON e.role_id = er.id
 			JOIN DEPARTMENT dp ON e.dept_id = dp.id
-			WHERE e.email = :1`, email).Scan(&employeeInfo.ID, &employeeInfo.Name, &employeeInfo.Lname, &employeeInfo.DeptID, &employeeInfo.RoleName, &employeeInfo.DeptName, &employeeInfo.Sex, &employeeInfo.Email, &profiletmp)
+			WHERE e.email = $1`, email).Scan(&employeeInfo.ID, &employeeInfo.Name, &employeeInfo.Lname, &employeeInfo.DeptID, &employeeInfo.RoleName, &employeeInfo.DeptName, &employeeInfo.Sex, &employeeInfo.Email, &profiletmp)
 	fmt.Println("after")
+	var path_file string
+
 	if profiletmp.Valid {
-		employeeInfo.ProfileImage = profiletmp.String
+		// ถ้ามีค่า profile_pic จะเป็น URL ของภาพที่เก็บใน Supabase
+		path_file = profiletmp.String
 	} else {
-		employeeInfo.ProfileImage = "profile.png"
+		// ถ้าไม่มีค่ากำหนดเป็นภาพเริ่มต้น
+		path_file = "profile.png"
 	}
-	employeeInfo.ProfileImage = fmt.Sprintf("/img/profile/%s", employeeInfo.ProfileImage)
-	fmt.Println(employeeInfo.ProfileImage)
+	employeeInfo.ProfileImage = supabaseURL + "/storage/v1/object/public/profile-pictures/" + path_file
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, sql.ErrNoRows
@@ -41,6 +47,7 @@ func getProfile(email string) (*EmployeeInfo, error) {
 
 // EditProfile อัปเดตข้อมูลพนักงาน
 func EditProfile(c *fiber.Ctx) error {
+	// Struct for parsing the incoming request
 	type UpdateEmployee struct {
 		ID    int    `json:"ID"`
 		Name  string `json:"Name"`
@@ -58,17 +65,49 @@ func EditProfile(c *fiber.Ctx) error {
 		})
 	}
 
+	// Validate that the ID is provided
+	if employee.ID == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "ID is required",
+		})
+	}
+
 	fmt.Printf("Updating employee: %+v\n", employee)
 
-	// SQL query to update the employee
-	query := `
-        UPDATE employee 
-        SET name = :1, lname = :2, email = :3, sex = :4
-        WHERE id = :5
-    `
+	// Building SQL query dynamically based on the provided fields
+	query := "UPDATE employee SET "
+	params := []interface{}{}
+	paramCount := 1
 
-	// Executing the query with data from the parsed employee struct
-	_, err := db.Exec(query, employee.Name, employee.Lname, employee.Email, employee.Sex, employee.ID)
+	// Only update the fields that are provided
+	if employee.Name != "" {
+		query += "name = $" + fmt.Sprintf("%d", paramCount) + ", "
+		params = append(params, employee.Name)
+		paramCount++
+	}
+	if employee.Lname != "" {
+		query += "lname = $" + fmt.Sprintf("%d", paramCount) + ", "
+		params = append(params, employee.Lname)
+		paramCount++
+	}
+	if employee.Email != "" {
+		query += "email = $" + fmt.Sprintf("%d", paramCount) + ", "
+		params = append(params, employee.Email)
+		paramCount++
+	}
+	if employee.Sex != "" {
+		query += "sex = $" + fmt.Sprintf("%d", paramCount) + ", "
+		params = append(params, employee.Sex)
+		paramCount++
+	}
+
+	// Remove the trailing comma and space
+	query = query[:len(query)-2]
+	query += " WHERE id = $" + fmt.Sprintf("%d", paramCount)
+	params = append(params, employee.ID)
+
+	// Executing the query
+	result, err := db.Exec(query, params...)
 	if err != nil {
 		fmt.Println("Error executing query:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -76,8 +115,18 @@ func EditProfile(c *fiber.Ctx) error {
 		})
 	}
 
+	// Check rows affected
+	rowsAffected, err := result.RowsAffected()
+	if err != nil || rowsAffected == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "No employee found with the given ID",
+		})
+	}
+
+	// Respond with updated employee data
 	return c.JSON(fiber.Map{
 		"message": "Employee updated successfully",
+		"data":    employee,
 	})
 }
 

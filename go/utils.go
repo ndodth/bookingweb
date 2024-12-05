@@ -35,7 +35,7 @@ func getImageContentType(filename string) string {
 
 func CronQRStartJobs() {
 	c := cron.New()
-	_, err := c.AddFunc("@every 1s", func() {
+	_, err := c.AddFunc("@every 2m", func() {
 		log.Println("Running monitor booking scheduled job...")
 		GenerateQRForUpcomingBookings()
 	})
@@ -50,14 +50,20 @@ func CronQRStartJobs() {
 }
 
 func GenerateQRForUpcomingBookings() {
-	now := time.Now()
-	bookings, err := getBookings()
+	now := time.Now().UTC()
+
+	compare := now.Add(7 * time.Hour)
+	bookings, err := getBookingsforchecckqr()
 	if err != nil {
 		log.Printf("Error fetching upcoming bookings: %v", err)
 		return
 	}
+
 	for _, b := range bookings {
-		if now.After(b.StartTime) {
+
+		// เปรียบเทียบเวลาหลังจากแปลงแล้ว
+		if compare.After(b.StartTime.Add(-5 * time.Minute)) {
+
 			err := generateQR(b.ID)
 			if err != nil {
 				log.Printf("Error generating QR code for booking ID %d: %v", b.ID, err)
@@ -69,7 +75,7 @@ func GenerateQRForUpcomingBookings() {
 
 func CronLockStartJobs() {
 	c := cron.New()
-	_, err := c.AddFunc("@every 1s", func() {
+	_, err := c.AddFunc("@every 2m", func() {
 		log.Println("Running Police scheduled job...")
 		checkQrUsedOrNot()
 	})
@@ -84,7 +90,9 @@ func CronLockStartJobs() {
 }
 
 func checkQrUsedOrNot() {
-	now := time.Now()
+	now := time.Now().UTC()
+
+	compare := now.Add(7 * time.Hour)
 	bookings, err := getBookings()
 	var wg sync.WaitGroup
 	if err != nil {
@@ -92,7 +100,7 @@ func checkQrUsedOrNot() {
 		return
 	}
 	for _, b := range bookings {
-		if now.After(b.StartTime.Add(5 * time.Minute)) {
+		if compare.After(b.StartTime.Add(5 * time.Minute)) {
 			wg.Add(1)
 			go checkBookingStatus(b.ID, &wg)
 
@@ -102,7 +110,7 @@ func checkQrUsedOrNot() {
 
 func CronCompleteStartJobs() {
 	c := cron.New()
-	_, err := c.AddFunc("@every 1s", func() {
+	_, err := c.AddFunc("@every 2m", func() {
 		log.Println("Running Complete Room scheduled job...")
 		checkCompleteRoom()
 	})
@@ -118,6 +126,8 @@ func CronCompleteStartJobs() {
 
 func checkCompleteRoom() {
 	now := time.Now()
+	compare := now.Add(7 * time.Hour)
+
 	bookings, err := getBookings()
 	var wg sync.WaitGroup
 	if err != nil {
@@ -125,7 +135,7 @@ func checkCompleteRoom() {
 		return
 	}
 	for _, b := range bookings {
-		if now.After(b.EndTime) {
+		if compare.After(b.EndTime) {
 			wg.Add(1)
 			go checkCompleteStatus(b.ID, &wg)
 

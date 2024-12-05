@@ -19,6 +19,7 @@ import PositionManagement from './assets/component/ManageRank';
 import RoomRequestManagement from './assets/component/RequestMenu';
 import QRCodeScanner from './assets/component/QRcodeScanner';
 import UnlockRoom from './assets/component/UnlockRoom';
+import ReportMenu from './assets/component/ReportMenu';
 import './App.css';
 
 const Logout = ({ onLogout }) => {
@@ -55,7 +56,7 @@ const App = () => {
   };
 
   useEffect(() => {
-    
+
     const token = localStorage.getItem("token");
 
     const fetchData = async () => {
@@ -86,7 +87,7 @@ const App = () => {
       <div className="container-fluid">
         <Header />
         <div className="row">
-          
+
           <div className="col-md-2 col-sm-1 col-lg-2">
             <Sidebar isLoggedIn={isLoggedIn} isAdmin={isAdmin} />
           </div>
@@ -97,24 +98,15 @@ const App = () => {
                 path="/login"
                 element={
                   isLoggedIn ? (
-                    <Navigate to="/home"/>
+                    <Navigate to="/home" />
                   ) : (
                     <LoginForm onLogin={handleLogin} onAdmin={handleAdmin} />
                   )
                 }
               />
-              <Route
-                path="/ยืนยัน"
-                element={
-                  isLoggedIn ? (
-                    <Navigate to="/ยืนยัน" />
-                  ) : (
-                    <LoginForm onLogin={handleLogin} onAdmin={handleAdmin} />
-                  )
-                }
-              />
+
               <Route path="/Register" element={<RegisterForm />} />
-              <Route path="/home" element={<Home  isLoggedIn={isLoggedIn}/>}/>
+              <Route path="/home" element={<Home isLoggedIn={isLoggedIn} />} />
               <Route path="/Detail" element={<Detail />} />
               <Route path="/ยืนยัน" element={<ยืนยัน />} />
 
@@ -129,17 +121,24 @@ const App = () => {
                   <Route path="/QRCodeScanner" element={<QRCodeScanner />} />
                 </>
               )}
-              {isLoggedIn && Permission.some(permission => permission.menu_id === 3) && (
-                <>
-                  <Route path="/ManageRoom" element={<RoomManagement />} />
-                </>)}
               {isLoggedIn && Permission.some(permission => permission.menu_id === 1) && (
                 <>
                   <Route path="/LockListManagement" element={<LockListManagement />} />
                 </>)}
-              {isLoggedIn && Permission.some(permission => permission.menu_id === 6) && (
+              {isLoggedIn && Permission.some(permission => permission.menu_id === 2) && (
                 <>
-                  <Route path="/ManageEmployee" element={<ManageEmployee />} />
+                  <Route path="/ReportMenu" element={<ReportMenu />} />
+                </>)}
+
+              {isLoggedIn && Permission.some(permission => permission.menu_id === 3) && (
+                <>
+                  <Route path="/ManageRoom" element={<RoomManagement />} />
+                  <Route path="/RoomRequestManagement" element={<RoomRequestManagement />} />
+
+                </>)}
+              {isLoggedIn && Permission.some(permission => permission.menu_id === 4) && (
+                <>
+                  <Route path="/PositionManagement" element={<PositionManagement />} />
                 </>)}
               {isLoggedIn && Permission.some(permission => permission.menu_id === 5) && (
                 <>
@@ -147,13 +146,14 @@ const App = () => {
                 </>)}
               {isLoggedIn && Permission.some(permission => permission.menu_id === 6) && (
                 <>
+                  <Route path="/ManageEmployee" element={<ManageEmployee />} />
                   <Route path="/PositionManagement" element={<PositionManagement />} />
+
                 </>)}
-              {isLoggedIn && Permission.some(permission => permission.menu_id === 3) && (
-                <>
-                  <Route path="/RoomRequestManagement" element={<RoomRequestManagement />} />
-                </>)}
-                
+
+
+
+
               <Route path="/QRCodeScanner" element={<QRCodeScanner />} />
 
             </Routes>

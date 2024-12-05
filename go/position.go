@@ -121,7 +121,7 @@ func AddPosition(c *fiber.Ctx) error {
 	position.ID = position_id + 1
 
 	// เพิ่มตำแหน่งใหม่ใน employee_role
-	_, err = db.Exec("INSERT INTO employee_role (id, name) VALUES (:1, :2)", position.ID, position.Name)
+	_, err = db.Exec("INSERT INTO employee_role (id, name) VALUES ($1, $2)", position.ID, position.Name)
 	if err != nil {
 		fmt.Println("Error adding position:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to add position"})
@@ -131,7 +131,7 @@ func AddPosition(c *fiber.Ctx) error {
 	for _, menuName := range position.RoleAccess {
 		_, err = db.Exec(`
             INSERT INTO permission (menu_id, employee_role_id)
-            VALUES ((SELECT id FROM menu WHERE id = :1), :2)`, menuName, position.ID)
+            VALUES ((SELECT id FROM menu WHERE id = $1), $2)`, menuName, position.ID)
 		if err != nil {
 			fmt.Println("Error adding permission:", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to add permission"})
@@ -163,7 +163,7 @@ func UpdatePosition(c *fiber.Ctx) error {
 
 	// อัปเดต permissions ใหม่
 	for _, permissionId := range payload.PermissionIds {
-		_, err := tx.Exec(`INSERT INTO permission (employee_role_id,menu_id) VALUES (:1, :2)`, id, permissionId)
+		_, err := tx.Exec(`INSERT INTO permission (employee_role_id,menu_id) VALUES ($1, $2)`, id, permissionId)
 		if err != nil {
 			fmt.Println("Error updating position:", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update position"})
@@ -182,17 +182,17 @@ func UpdatePosition(c *fiber.Ctx) error {
 func DeleteRole(c *fiber.Ctx) error {
 	id := c.Params("id")
 
-	_, err := db.Exec("UPDATE employee SET role_id = 2 WHERE role_id = :1", id)
+	_, err := db.Exec("UPDATE employee SET role_id = 2 WHERE role_id = $1", id)
 	if err != nil {
 		fmt.Println("Error deleting permissions:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete permissions"})
 	}
-	_, err3 := db.Exec("DELETE FROM permission WHERE employee_role_id = :1 ", id)
+	_, err3 := db.Exec("DELETE FROM permission WHERE employee_role_id = $1 ", id)
 	if err3 != nil {
 		fmt.Println("Error permission permissions:", err3)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete permissions"})
 	}
-	_, err2 := db.Exec("DELETE FROM employee_role WHERE id = :1 ", id)
+	_, err2 := db.Exec("DELETE FROM employee_role WHERE id = $1 ", id)
 	if err2 != nil {
 		fmt.Println("Error employee_role permissions:", err2)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete permissions"})
@@ -214,7 +214,7 @@ func DeletePermision(c *fiber.Ctx) error {
 
 	fmt.Println("Permissions :", permissions)
 
-	_, err := db.Exec("DELETE FROM permission WHERE employee_role_id = :1 AND MENU_ID = (SELECT id FROM menu WHERE name = :2)", id, permissions)
+	_, err := db.Exec("DELETE FROM permission WHERE employee_role_id = $1 AND MENU_ID = (SELECT id FROM menu WHERE name = $2)", id, permissions)
 	if err != nil {
 		fmt.Println("Error deleting permissions:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete permissions"})

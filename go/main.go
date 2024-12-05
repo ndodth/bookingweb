@@ -50,13 +50,14 @@ func main() {
 		AllowMethods: "GET,POST,HEAD,PUT,DELETE,PATCH",
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
+	fmt.Println("test to postgres Database using go-ora")
 
 	app.Get("/home", home)
 
 	app.Get("/departments", getDepartmentsHandler)
 	app.Get("/roomTypes", getRoomTypesHandler)
 	app.Get("/menus", getMenusHandler)
-	app.Post("/uploadImageRoom/:id", uploadImageRoomHandler)
+	// app.Post("/uploadImageRoom/:id", uploadImageRoomHandler)
 	app.Get("/getImageRoom/:id", getImageRoomHandler)
 	app.Post("/uploadImageProfile/:id", uploadImageProfileHandler)
 	app.Get("/getImageProfile/:id", getImageProfileHandler)
@@ -83,7 +84,7 @@ func main() {
 	// API HANDLER
 	app.Get("/userBooking", getUserBookingHandler)
 	app.Get("/historyBooking", getHistoryBookingHandler)
-	// app.Get("/userPermissions", getUserPermissionsHandler) // get permission of jwt (user)
+	app.Get("/userPermissions", getUserPermissionsHandler) // get permission of jwt (user)
 	app.Get("/roles", getRolesHandler)
 	app.Get("/Profile", Profile)
 	app.Put("/Profile", EditProfile) // เพิ่มการรองรับ method PUT สำหรับ /Profile
@@ -102,6 +103,7 @@ func main() {
 	roomsGroupApi.Post("/create", createRoomHandler)
 	roomsGroupApi.Put("/:id", updateRoomHandler)
 	roomsGroupApi.Delete("/:id", deleteRoomHandler)
+	roomsGroupApi.Put("/:id/upload", uploadImageRoom)
 
 	// Employees
 	employeesGroupApi := app.Group("/employees")
@@ -111,6 +113,7 @@ func main() {
 	employeesGroupApi.Post("/", AddEmployee)
 	employeesGroupApi.Put("/:id", UpdateEmployee)
 	employeesGroupApi.Delete("/:id", DeleteEmployee)
+	employeesGroupApi.Put("/:id/upload", image)
 
 	// Permissions
 	permissionsGroupApi := app.Group("/permissions")
@@ -153,11 +156,14 @@ func main() {
 	reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
 
 	// CronJob
-	// go CronQRStartJobs()
-	// go CronLockStartJobs()
-	// go CronCompleteStartJobs()
+	go CronQRStartJobs()
+	go CronLockStartJobs()
+	go CronCompleteStartJobs()
 
-	app.Listen(":5020")
+	if err := app.Listen(":5020"); err != nil {
+		fmt.Printf("Failed to start server: %v\n", err)
+		panic(err)
+	}
 }
 
 // userContextKey is the key used to store user data in the Fiber context
@@ -182,8 +188,8 @@ func checkPermissionLocks(c *fiber.Ctx) error {
 	userEmail := token.Email
 	query := `SELECT employee_role_id, menu_id
                 FROM permission
-                WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)
-                AND menu_id=(SELECT id FROM menu WHERE name=:2)`
+                WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=$1)
+                AND menu_id=(SELECT id FROM menu WHERE name=$2)`
 	var permission Permission
 	err := db.QueryRow(query, userEmail, "Lock Management").Scan(&permission.EmployeeRoleID, &permission.MenuID)
 	if err != nil {
@@ -197,8 +203,8 @@ func checkPermissionReports(c *fiber.Ctx) error {
 	userEmail := token.Email
 	query := `SELECT employee_role_id, menu_id
                 FROM permission
-                WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)
-                AND menu_id=(SELECT id FROM menu WHERE name=:2)`
+                WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=$1)
+                AND menu_id=(SELECT id FROM menu WHERE name=$2)`
 	var permission Permission
 	err := db.QueryRow(query, userEmail, "Report Management").Scan(&permission.EmployeeRoleID, &permission.MenuID)
 	if err != nil {
@@ -213,8 +219,8 @@ func checkPermissionRooms(c *fiber.Ctx) error {
 
 	query := `SELECT employee_role_id, menu_id
                 FROM permission
-                WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)
-                AND menu_id=(SELECT id FROM menu WHERE name=:2)`
+                WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=$1)
+                AND menu_id=(SELECT id FROM menu WHERE name=$2)`
 	var permission Permission
 	err := db.QueryRow(query, userEmail, "Room Management").Scan(&permission.EmployeeRoleID, &permission.MenuID)
 	if err != nil {
@@ -230,8 +236,8 @@ func checkPermissionRoles(c *fiber.Ctx) error {
 	userEmail := token.Email
 	query := `SELECT employee_role_id, menu_id
                 FROM permission
-                WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)
-                AND menu_id=(SELECT id FROM menu WHERE name=:2)`
+                WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=$1)
+                AND menu_id=(SELECT id FROM menu WHERE name=$2)`
 	var permission Permission
 	err := db.QueryRow(query, userEmail, "Role Management").Scan(&permission.EmployeeRoleID, &permission.MenuID)
 	if err != nil {
@@ -245,8 +251,8 @@ func checkPermissionDepartments(c *fiber.Ctx) error {
 	userEmail := token.Email
 	query := `SELECT employee_role_id, menu_id
                 FROM permission
-                WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)
-                AND menu_id=(SELECT id FROM menu WHERE name=:2)`
+                WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=$1)
+                AND menu_id=(SELECT id FROM menu WHERE name=$2)`
 	var permission Permission
 	err := db.QueryRow(query, userEmail, "Department Management").Scan(&permission.EmployeeRoleID, &permission.MenuID)
 	if err != nil {
@@ -261,8 +267,8 @@ func checkPermissionEmployees(c *fiber.Ctx) error {
 	userEmail := token.Email
 	query := `SELECT employee_role_id, menu_id
                 FROM permission
-                WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)
-                AND menu_id=(SELECT id FROM menu WHERE name=:2)`
+                WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=$1)
+                AND menu_id=(SELECT id FROM menu WHERE name=$2)`
 	var permission Permission
 	err := db.QueryRow(query, userEmail, "Employee Management").Scan(&permission.EmployeeRoleID, &permission.MenuID)
 	if err != nil {

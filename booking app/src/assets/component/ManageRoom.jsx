@@ -15,6 +15,8 @@ function RoomManagement() {
   const [statustypeOptions, setstatustypeOptions] = useState([]);
   const [selectedBuilding, setSelectedBuilding] = useState('');
   const [selectedfloor, setSelectedfloor] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showEditImageModal, setShowEditImageModal] = useState(false);
 
 
 
@@ -110,7 +112,46 @@ function RoomManagement() {
   });
 
 
+  const handleImageUpload = async (e, employeeId) => {
+    if (!newRoom.roompic) {
+      setErrorMessage("ไม่มีไฟล์รูปภาพให้ส่ง");
 
+      return;
+    }
+
+    // ตรวจสอบขนาดไฟล์
+    if (newRoom.roompic.size > 200 * 1024) { // 200 KB
+      setErrorMessage("ไฟล์ต้องมีขนาดไม่เกิน 200 KB");
+      return;
+    }
+    const token = localStorage.getItem('token');
+
+
+    const formData = new FormData();
+    formData.append("image", newRoom.roompic);
+
+    try {
+      const response = await axios.put(`http://localhost:5020/rooms/${editRoom.id}/upload`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
+
+
+      if (response.ok) {
+        const updatedEmployee = await response.json();
+        setFilteredEmployees((prev) =>
+          prev.map((emp) => (emp.id === employeeId ? updatedEmployee : emp))
+        );
+        setShowEditImageModal(false);
+      } else {
+        console.error("การอัปโหลดล้มเหลว");
+      }
+    } catch (error) {
+      console.error("เกิดข้อผิดพลาด:", error);
+    }
+    fetchRooms();
+  };
   const addNewRoom = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -139,7 +180,6 @@ function RoomManagement() {
         formData.append("cap", newRoom.cap);
         formData.append("room_type_id", newRoom.room_type_id);
         formData.append("address_id", matchingAddresses[0].id);
-        formData.append("image", newRoom.roompic);
         console.log("formData", formData)
         const response2 = await axios.post(`http://localhost:5020/rooms/create`, formData, {
           headers: {
@@ -338,18 +378,33 @@ function RoomManagement() {
           {filteredRooms.map((room) => (
             <div key={room.id} className="card mb-4 shadow-sm border-0">
               <div className="row g-0">
-                <div className="col-md-2 d-flex align-items-center ms-3">
+                <div className="col-md-2 d-flex flex-column align-items-center ms-3">
                   {/* ใช้ img จาก room object แทน */}
                   <img
                     src={room.roompic} // ใช้รูป placeholder ถ้ายังไม่มีรูป
                     alt="Room"
-                    className="img-fluid rounded-circle border border-dark border-2"
+                    className="img-fluid rounded-circle border border-dark border-2 mb-5"
                     style={{
                       objectFit: "cover",
                       height: "130px",
                       width: "140px",
                     }}
-                  />
+                  /> {/* ปุ่มแก้ไขรูปภาพ */}
+                  {((room.id !== 1) && (room.id !== 3)) &&
+                    (
+                      <>
+                        <button
+                          className="btn btn-warning mt-2"
+                          style={{ width: '140px' }}
+                          onClick={() => {
+                            setEditRoom(room);
+                            setShowEditImageModal(true);
+                          }}
+                        >
+                          แก้ไขรูปภาพ
+                        </button>
+                      </>
+                    )}
                 </div>
 
                 <div className="col-md-6 d-flex align-items-center">
@@ -368,27 +423,39 @@ function RoomManagement() {
                   </div>
                 </div>
 
+
                 <div className="col-md-3 d-flex flex-column justify-content-center align-items-end">
-                  <button
-                    className="btn btn-secondary mb-2 btn-lg"
-                    onClick={() => editRoomDetails(room)}
-                    style={{ width: "300px", backgroundColor: "#35374B" }}
-                  >
-                    แก้ไขข้อมูล
-                  </button>
-                  <button
-                    className="btn btn-danger btn-lg mb-2"
-                    onClick={() => deleteRoom(room.id)}
-                    style={{ width: "300px", backgroundColor: "#AC5050" }}
-                  >
-                    ลบห้อง
-                  </button>
-                  <button className="btn btn-info btn-lg border-light"
-                    onClick={() => setShowDescription(room)}
-                    style={{ width: "300px", backgroundColor: "#DAEEF7" }} >
-                    ดูรายละเอียด
-                  </button>
+                  {((room.id !== 1) && (room.id !== 3)) ? (
+                     <>
+                     <button
+                       className="btn btn-secondary mb-2 btn-lg"
+                       onClick={() => editRoomDetails(room)}
+                       style={{ width: "300px", backgroundColor: "#35374B" }}
+                     >
+                       แก้ไขข้อมูล
+                     </button>
+                     <button
+                       className="btn btn-danger btn-lg mb-2"
+                       onClick={() => deleteRoom(room.id)}
+                       style={{ width: "300px", backgroundColor: "#AC5050" }}
+                     >
+                       ลบห้อง
+                     </button>
+                     <button className="btn btn-info btn-lg border-light"
+                       onClick={() => setShowDescription(room)}
+                       style={{ width: "300px", backgroundColor: "#DAEEF7" }} >
+                       ดูรายละเอียด
+                     </button>
+                   </>
+                  ) : (
+                    <div
+                    className="text-secondary fs-5">  *** เนื่องจากเว็บไซต์นี้เปิดให้ผู้ใช้ทุกคนเข้าถึงได้ ปุ่มแก้ไขและลบจึงถูกปิดใช้งาน ยกเว้นห้องตัวอย่างเพื่อแสดงการใช้งานในกรณีที่มีสิทธิ์แก้ไข
+
+                  </div>
+                   
+                  )}
                 </div>
+
               </div>
             </div>
           ))}
@@ -447,24 +514,6 @@ function RoomManagement() {
                 ></button>
               </div>
               <div className="modal-body">
-                {/* เลือกรูปภาพ */}
-                <div className="mb-3">
-                  <label className="form-label">เลือกรูปภาพ</label>
-                  <input
-                    type="file"
-                    className="form-control"
-                    style={{
-                      border: !newRoom.check ? "1px solid red" : "1px solid black"
-                    }}
-                    onChange={(e) => {
-                      setNewRoom({
-                        ...newRoom,
-                        roompic: e.target.files[0], // อัปเดต URL รูปภาพทันที
-                        check: 1,
-                      });
-                    }}
-                  />
-                </div>
                 {/* ชื่อห้อง */}
                 <div className="mb-3 " >
                   <label className="form-label">ชื่อห้อง</label>
@@ -481,19 +530,20 @@ function RoomManagement() {
 
                   />
                 </div>
-                {editRoom && 
-                <>
-                {/* รหัสห้อง */}
-                <div className="mb-3">
-                  <label className="form-label">รหัสห้อง</label>
-                  <div style={{ border: "1px solid black",borderRadius : "4%",
+                {editRoom &&
+                  <>
+                    {/* รหัสห้อง */}
+                    <div className="mb-3">
+                      <label className="form-label">รหัสห้อง</label>
+                      <div style={{
+                        border: "1px solid black", borderRadius: "4%",
                         backgroundColor: "#f8f9fa"
-                  }} 
-                  className='p-2'>
-                    {newRoom.id}
+                      }}
+                        className='p-2'>
+                        {newRoom.id}
+                      </div>
                     </div>
-                </div>
-                </>}
+                  </>}
                 {/* ตึก */}
                 <div className="mb-3">
                   <label className="form-label">ตึก</label>
@@ -634,6 +684,53 @@ function RoomManagement() {
                 >
                   {editRoom ? "บันทึกการแก้ไข" : "บันทึก"}
 
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {showEditImageModal && (
+        <div className="modal d-block" tabIndex="-1">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">แก้ไขรูปภาพ</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowEditImageModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    setNewRoom({
+                      ...newRoom,
+                      roompic: e.target.files[0], // อัปเดต URL รูปภาพทันที
+                      check: 1,
+                    });
+                  }}
+                />
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={() => setShowEditImageModal(false)}
+                >
+                  ปิด
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-success"
+                  onClick={handleImageUpload}
+                >
+                  ตกลง
                 </button>
               </div>
             </div>
