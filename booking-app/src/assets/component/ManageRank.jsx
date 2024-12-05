@@ -398,7 +398,7 @@ function PositionManagement() {
                     id="positionName"
                     value={positionName}
                     onChange={(e) => setPositionName(e.target.value)}
-                    required
+                    
                   />
                 </div>
                 <h6>เลือกสิทธิ์สำหรับตำแหน่งใหม่:</h6>
