@@ -1,0 +1,17 @@
+diff --git a/node_modules/react-bootstrap/.DS_Store b/node_modules/react-bootstrap/.DS_Store
+new file mode 100644
+index 0000000..2420349
+Binary files /dev/null and b/node_modules/react-bootstrap/.DS_Store differ
+diff --git a/node_modules/react-bootstrap/cjs/Dropdown.js b/node_modules/react-bootstrap/cjs/Dropdown.js
+index 5659d07..ef3beb8 100644
+--- a/node_modules/react-bootstrap/cjs/Dropdown.js
++++ b/node_modules/react-bootstrap/cjs/Dropdown.js
+@@ -4,7 +4,7 @@
+ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+ exports.__esModule = true;
+ exports.default = void 0;
+-var _classnames = _interopRequireDefault(require("classnames"));
++import _classnames from 'classnames';
+ var _react = _interopRequireWildcard(require("react"));
+ var React = _react;
+ var _Dropdown = _interopRequireDefault(require("@restart/ui/Dropdown"));
