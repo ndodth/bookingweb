@@ -1,16 +1,16 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import commonjs from '@rollup/plugin-commonjs';
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(),  commonjs(), // เพิ่ม CommonJS Plugin
+  plugins: [
+    react(),
   ],
   optimizeDeps: {
     include: ['@popperjs/core'], // บังคับแปลง @popperjs/core
   },
   server: {
-    port: 4173,  // หรือพอร์ตที่คุณเลือก
-    host: true,   // เปิดให้สามารถเข้าถึงจากภายนอก
+    port: 4173,  // พอร์ตสำหรับ dev server
+    host: true,  // เปิดให้สามารถเข้าถึงจากเครือข่ายภายนอกได้
   },
-})
+});
