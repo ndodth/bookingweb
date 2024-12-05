@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
   ],
   optimizeDeps: {
-    include: ['@popperjs/core'], // บังคับแปลง @popperjs/core
+    include: ['@popperjs/core'], // ตัวเลือก: โดยปกติ Vite จะจัดการให้เอง
   },
   server: {
     port: 4173,  // พอร์ตสำหรับ dev server

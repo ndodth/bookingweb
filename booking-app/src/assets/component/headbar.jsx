@@ -7,14 +7,12 @@ import mut from '../pic/mut.png';
 
 function Header() {
     return (
-        <div className="container-fluid "style={{backgroundColor: '#49647C'}}>
+        <div className="container-fluid" style={{backgroundColor: '#49647C'}}>
             <header className="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-1 border-bottom">
                 <div className="col-md-2 mb-2 mb-md-0">
-                    <a >
-                    <Link className="d-inline-flex link-body-emphasis text-decoration-none"  to="/home">
-                    
-                        <img src={mut} className="navbar-brand"style={{width:'50%',height:'50%'}} alt="Logo" /></Link>
-                        </a>
+                    <Link className="d-inline-flex link-body-emphasis text-decoration-none" to="/home">
+                        <img src={mut} className="navbar-brand" style={{width: '50%'}} alt="Logo" />
+                    </Link>
                 </div>
             </header>
         </div>
