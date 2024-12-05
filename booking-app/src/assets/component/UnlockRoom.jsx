@@ -19,10 +19,10 @@ function UnlockRoom() {
 				}
 
 				const [bookingsResponse, roomsResponse] = await Promise.all([
-					axios.get('http://localhost:5020/userBooking', {
+					axios.get('https://bookingweb-sxkw.onrender.com/userBooking', {
 						headers: { "Authorization": `Bearer ${token}` },
 					}),
-					axios.get('http://localhost:5020/rooms', {
+					axios.get('https://bookingweb-sxkw.onrender.com/rooms', {
 						headers: { "Authorization": `Bearer ${token}` },
 					}),
 				]);
@@ -54,7 +54,7 @@ function UnlockRoom() {
 			}
 			console.log(token)
 			const response = await axios.put(
-				`http://localhost:5020/unlockRoom/${id}`,
+				`https://bookingweb-sxkw.onrender.com/unlockRoom/${id}`,
 				{}, // Empty object for body for put, post
 				{
 					headers: { "Authorization": `Bearer ${token}` },

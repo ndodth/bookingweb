@@ -14,7 +14,7 @@ function RoomRequestManagement() {
   const fetchRoomRequests = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5020/request',{
+      const response = await axios.get('https://bookingweb-sxkw.onrender.com/request',{
       headers: {
         Authorization: `Bearer ${token}`, 
       }
@@ -53,7 +53,7 @@ function RoomRequestManagement() {
     try {
       const token = localStorage.getItem('token');
       c = await axios.put(
-        `http://localhost:5020/request/${selectedRequest.id}`,
+        `https://bookingweb-sxkw.onrender.com/request/${selectedRequest.id}`,
         {}, // ค่าที่จะส่งในคำขอ PUT เช่น ข้อมูล body ถ้าไม่มีก็ใส่เป็น {} ว่าง
         {
           headers: {

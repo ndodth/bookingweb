@@ -30,7 +30,7 @@ function LoginForm({ onLogin, onAdmin }) {
     console.log(user)
     console.log(pass)
 
-    axios.post('http://localhost:5020/login', {
+    axios.post('https://bookingweb-sxkw.onrender.com/login', {
       email: user,
       password: pass
     })
@@ -48,7 +48,7 @@ function LoginForm({ onLogin, onAdmin }) {
   };
 
   const handleAdmin = () => {
-    axios.post('http://localhost:5020/login', {
+    axios.post('https://bookingweb-sxkw.onrender.com/login', {
       email: "admin@admin",
       password: "1234"
     })

@@ -16,7 +16,7 @@ function ReserveRoom() {
 
     // Fetch rooms data
     const fetchRooms = async () => {
-      const response = await fetch("http://localhost:5020/rooms/", {
+      const response = await fetch("https://bookingweb-sxkw.onrender.com/rooms/", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -32,7 +32,7 @@ function ReserveRoom() {
 
     // Fetch user booking data
     const fetchUserBookings = async () => {
-      const response = await fetch("http://localhost:5020/userBooking", {
+      const response = await fetch("https://bookingweb-sxkw.onrender.com/userBooking", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -48,7 +48,7 @@ function ReserveRoom() {
 
     // Fetch all room addresses at once
     const fetchRoomAddresses = async () => {
-      const response = await fetch("http://localhost:5020/addresses", {
+      const response = await fetch("https://bookingweb-sxkw.onrender.com/addresses", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -157,7 +157,7 @@ function ReserveRoom() {
 
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch(`http://localhost:5020/cancelRoom/${room.bookingID}`, {
+      const response = await fetch(`https://bookingweb-sxkw.onrender.com/cancelRoom/${room.bookingID}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

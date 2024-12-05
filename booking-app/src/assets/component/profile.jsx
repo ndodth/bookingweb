@@ -15,7 +15,7 @@ function Profile() {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5020/Profile", {
+        const response = await axios.get("https://bookingweb-sxkw.onrender.com/Profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setProfile(response.data);
@@ -42,7 +42,7 @@ function Profile() {
 
     try {
       const response = await axios.put(
-        `http://localhost:5020/employees/${profile.ID}/upload`, 
+        `https://bookingweb-sxkw.onrender.com/employees/${profile.ID}/upload`, 
         formData,
         {
           headers: {
@@ -79,7 +79,7 @@ function Profile() {
         [fieldName]: profile[fieldName],
       };
 
-      await axios.put("http://localhost:5020/Profile", updatedProfile, {
+      await axios.put("https://bookingweb-sxkw.onrender.com/Profile", updatedProfile, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

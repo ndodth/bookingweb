@@ -14,7 +14,7 @@ function DepartmentManagement() {
     const token = localStorage.getItem('token');
 
     axios
-    .get("http://localhost:5020/departments", {
+    .get("https://bookingweb-sxkw.onrender.com/departments", {
       headers: {
         Authorization: `Bearer ${token}`, 
       }
@@ -38,7 +38,7 @@ return
     const token = localStorage.getItem('token');
 console.log(newDepartment)
     axios
-      .post("http://localhost:5020/departments", newDepartment ,{
+      .post("https://bookingweb-sxkw.onrender.com/departments", newDepartment ,{
         headers: {
           Authorization: `Bearer ${token}`, 
         }
@@ -57,7 +57,7 @@ console.log(newDepartment)
     const confirmDelete = window.confirm("คุณต้องการลบแผนกนี้ใช่หรือไม่?");
     if (confirmDelete) {
       axios
-        .delete(`http://localhost:5020/departments/${id}` ,{
+        .delete(`https://bookingweb-sxkw.onrender.com/departments/${id}` ,{
           headers: {
             Authorization: `Bearer ${token}`, 
           }
@@ -95,7 +95,7 @@ console.log(newDepartment)
 
   
     axios
-      .put(`http://localhost:5020/departments/${editDepartment.id}`, departmentToUpdate ,{
+      .put(`https://bookingweb-sxkw.onrender.com/departments/${editDepartment.id}`, departmentToUpdate ,{
         headers: {
           Authorization: `Bearer ${token}`, 
         }

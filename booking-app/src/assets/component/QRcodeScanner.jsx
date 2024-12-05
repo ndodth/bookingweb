@@ -45,7 +45,7 @@ function QRCodeScanner() {
   useEffect(() => {
     if (bookingId) {
       axios
-      .get(`http://localhost:5020/getImageQr/${bookingId}`)
+      .get(`https://bookingweb-sxkw.onrender.com/getImageQr/${bookingId}`)
       .then(response => {
         const imageUrl = response.data.image_url; // ดึงค่า image_url จาก JSON
         console.log("Image URL:", imageUrl);
@@ -58,7 +58,7 @@ function QRCodeScanner() {
   }, [bookingId]);
 function test(){
   axios
-  .get(`http://localhost:5020/getImageQr/${bookingId}`)
+  .get(`https://bookingweb-sxkw.onrender.com/getImageQr/${bookingId}`)
   .then(response => {
     const imageUrl = response.data.image_url; // ดึงค่า image_url จาก JSON
     console.log("Image URL:", imageUrl);

@@ -36,7 +36,7 @@ function EmployeeManagement() {
   const token = localStorage.getItem('token');
 
   const fetchEmployees = async () => {
-    const response = await axios.get("http://localhost:5020/employees", {
+    const response = await axios.get("https://bookingweb-sxkw.onrender.com/employees", {
       headers: {
         Authorization: `Bearer ${token}`,
       }
@@ -47,13 +47,13 @@ function EmployeeManagement() {
 
   const fetchRolesAndDepartments = async () => {
     try {
-      const rolesResponse = await axios.get("http://localhost:5020/Roles", {
+      const rolesResponse = await axios.get("https://bookingweb-sxkw.onrender.com/Roles", {
         headers: {
           Authorization: `Bearer ${token}`,
         }
       });;
       console.log(rolesResponse.data)
-      const departmentsResponse = await axios.get("http://localhost:5020/departments", {
+      const departmentsResponse = await axios.get("https://bookingweb-sxkw.onrender.com/departments", {
         headers: {
           Authorization: `Bearer ${token}`,
         }
@@ -85,7 +85,7 @@ function EmployeeManagement() {
     formData.append("image", newEmployee.img);
 
     try {
-      const response = await axios.put(`http://localhost:5020/employees/${editEmployee.id}/upload`, formData, {
+      const response = await axios.put(`https://bookingweb-sxkw.onrender.com/employees/${editEmployee.id}/upload`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         }
@@ -150,7 +150,7 @@ function EmployeeManagement() {
 
     try {
       console.log("Sending data to API (Add):", formData);
-      const response = await axios.post("http://localhost:5020/employees", formData, {
+      const response = await axios.post("https://bookingweb-sxkw.onrender.com/employees", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         }
@@ -211,7 +211,7 @@ function EmployeeManagement() {
       formData.append("role_id", parseInt(newEmployee.role_id, 10));
 
       console.log("Sending data to API (Update):", formattedEmployee);
-      await axios.put(`http://localhost:5020/employees/${editEmployee.id}`, formData, {
+      await axios.put(`https://bookingweb-sxkw.onrender.com/employees/${editEmployee.id}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         }
@@ -235,7 +235,7 @@ function EmployeeManagement() {
 
     if (window.confirm("คุณต้องการลบพนักงานคนนี้ใช่หรือไม่?")) {
       try {
-        await axios.delete(`http://localhost:5020/employees/${id}`, {
+        await axios.delete(`https://bookingweb-sxkw.onrender.com/employees/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           }

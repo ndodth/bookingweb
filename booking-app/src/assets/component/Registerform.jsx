@@ -58,7 +58,7 @@ const RegisterForm = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:5020/register', {
+      const response = await fetch('https://bookingweb-sxkw.onrender.com/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

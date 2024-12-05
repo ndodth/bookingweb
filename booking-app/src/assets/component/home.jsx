@@ -35,7 +35,7 @@ function Home(isLoggedIn) {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await axios.get("http://localhost:5020/amILocked", {
+      const response = await axios.get("https://bookingweb-sxkw.onrender.com/amILocked", {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -61,7 +61,7 @@ function Home(isLoggedIn) {
     try {
       console.log("test", isLoggedIn)
 
-      const response = await axios.get('http://localhost:5020/home'); // URL ของ API
+      const response = await axios.get('https://bookingweb-sxkw.onrender.com/home'); // URL ของ API
 
 
       //building opt
@@ -166,7 +166,7 @@ async function fetchFilteredRooms(event) {
       time2: selectedTime2 ? selectedTime2.value : '',
 
     });
-    const response = await fetch(`http://localhost:5020/home?${queryParams}`);
+    const response = await fetch(`https://bookingweb-sxkw.onrender.com/home?${queryParams}`);
     if (!response.ok) {
       console.error("HTTP error:", response.status); // แสดงสถานะถ้าไม่ใช่ 200
       return;

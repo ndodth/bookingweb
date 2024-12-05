@@ -100,10 +100,10 @@ const BookingHistory = () => {
         }
 
         const [bookingsResponse, roomsResponse] = await Promise.all([
-          axios.get('http://localhost:5020/historyBooking', {
+          axios.get('https://bookingweb-sxkw.onrender.com/historyBooking', {
             headers: { "Authorization": `Bearer ${token}` },
           }),
-          axios.get('http://localhost:5020/rooms', {
+          axios.get('https://bookingweb-sxkw.onrender.com/rooms', {
             headers: { "Authorization": `Bearer ${token}` },
           }),
         ]);

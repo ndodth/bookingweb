@@ -79,7 +79,7 @@ console.log(roomData)
         }
 
         try {
-            await axios.post(`http://localhost:5020/bookRoom`, sender, {
+            await axios.post(`https://bookingweb-sxkw.onrender.com/bookRoom`, sender, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json'

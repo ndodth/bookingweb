@@ -61,7 +61,7 @@ const App = () => {
 
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:5020/userPermissions", {
+        const response = await fetch("https://bookingweb-sxkw.onrender.com/userPermissions", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

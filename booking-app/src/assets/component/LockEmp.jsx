@@ -11,7 +11,7 @@ function LockListManagement() {
       try {
         const token = localStorage.getItem('token'); // ดึง token จาก localStorage
 
-        const response = await axios.get('http://localhost:5020/locks/LockListManagement', {
+        const response = await axios.get('https://bookingweb-sxkw.onrender.com/locks/LockListManagement', {
           headers: {
             Authorization: `Bearer ${token}`, // ส่ง token ใน Authorization header
           },
@@ -30,7 +30,7 @@ function LockListManagement() {
     try {
       const token = localStorage.getItem('token'); // ดึง token จาก localStorage
 
-      await axios.put(`http://localhost:5020/locks/resetEmployeeLock/${id}`, {}, {
+      await axios.put(`https://bookingweb-sxkw.onrender.com/locks/resetEmployeeLock/${id}`, {}, {
         headers: {
           Authorization: `Bearer ${token}`, // ส่ง token ใน Authorization header
         },

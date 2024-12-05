@@ -25,12 +25,12 @@ function PositionManagement() {
       const token = localStorage.getItem("token");
 
       // Fetch positions
-      const response = await axios.get("http://localhost:5020/permissions", {
+      const response = await axios.get("https://bookingweb-sxkw.onrender.com/permissions", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       // Fetch all permissions
-      const allPermissionsResponse = await axios.get("http://localhost:5020/menus", {
+      const allPermissionsResponse = await axios.get("https://bookingweb-sxkw.onrender.com/menus", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -69,7 +69,7 @@ function PositionManagement() {
 
       console.log("Permissions to Delete:", permissionsToDelete);
 
-      await axios.delete(`http://localhost:5020/permissions/${selectedPosition.id}`, {
+      await axios.delete(`https://bookingweb-sxkw.onrender.com/permissions/${selectedPosition.id}`, {
         headers: { Authorization: `Bearer ${token}` },
         params: { permissions: permissionsToDelete },
       });
@@ -123,7 +123,7 @@ function PositionManagement() {
       console.log("Selected Position:", selectedPosition);
       console.log("Selected Permissions:", selectedPermissions);
 
-      await axios.put(`http://localhost:5020/permissions/${selectedPosition}`, {
+      await axios.put(`https://bookingweb-sxkw.onrender.com/permissions/${selectedPosition}`, {
         permissionIds: selectedPermissions
       }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -156,7 +156,7 @@ function PositionManagement() {
       console.log("selectedPermissions", selectedPermissions)
 
       console.log("newPosition", newPosition)
-      await axios.post('http://localhost:5020/permissions', newPosition, {
+      await axios.post('https://bookingweb-sxkw.onrender.com/permissions', newPosition, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -177,7 +177,7 @@ function PositionManagement() {
     const token = localStorage.getItem('token')
     if (window.confirm(`ต้องการลบตำแหน่ง ${position.name}?`)) {
       // ส่งคำขอลบไปยัง backend
-      await axios.delete(`http://localhost:5020/deleterole/${position.id}`, {
+      await axios.delete(`https://bookingweb-sxkw.onrender.com/deleterole/${position.id}`, {
 
         headers: { Authorization: `Bearer ${token}` }
 

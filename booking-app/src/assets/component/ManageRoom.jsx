@@ -33,16 +33,16 @@ function RoomManagement() {
     try {
       const token = localStorage.getItem('token');
 
-      const response = await axios.get('http://localhost:5020/rooms', {
+      const response = await axios.get('https://bookingweb-sxkw.onrender.com/rooms', {
         headers: {
           Authorization: `Bearer ${token}`,
         }
       });;
-      const buildingtype = await axios.get('http://localhost:5020/buildingtype')
-      const roomtype = await axios.get('http://localhost:5020/roomtype')
-      const statustype = await axios.get('http://localhost:5020/statustype')
-      const Address_idforcheck = await axios.get('http://localhost:5020/address')
-      const floor = await axios.get(('http://localhost:5020/floortype'))
+      const buildingtype = await axios.get('https://bookingweb-sxkw.onrender.com/buildingtype')
+      const roomtype = await axios.get('https://bookingweb-sxkw.onrender.com/roomtype')
+      const statustype = await axios.get('https://bookingweb-sxkw.onrender.com/statustype')
+      const Address_idforcheck = await axios.get('https://bookingweb-sxkw.onrender.com/address')
+      const floor = await axios.get(('https://bookingweb-sxkw.onrender.com/floortype'))
 
       setRawdatafloor(floor.data)
       console.log(floor.data)
@@ -131,7 +131,7 @@ function RoomManagement() {
     formData.append("image", newRoom.roompic);
 
     try {
-      const response = await axios.put(`http://localhost:5020/rooms/${editRoom.id}/upload`, formData, {
+      const response = await axios.put(`https://bookingweb-sxkw.onrender.com/rooms/${editRoom.id}/upload`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         }
@@ -181,7 +181,7 @@ function RoomManagement() {
         formData.append("room_type_id", newRoom.room_type_id);
         formData.append("address_id", matchingAddresses[0].id);
         console.log("formData", formData)
-        const response2 = await axios.post(`http://localhost:5020/rooms/create`, formData, {
+        const response2 = await axios.post(`https://bookingweb-sxkw.onrender.com/rooms/create`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
           }
@@ -209,7 +209,7 @@ function RoomManagement() {
       const token = localStorage.getItem('token');
       console.log("id", id)
 
-      await axios.delete(`http://localhost:5020/rooms/${id}`, {
+      await axios.delete(`https://bookingweb-sxkw.onrender.com/rooms/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         }
@@ -260,7 +260,7 @@ function RoomManagement() {
         console.log("formData", formData)
 
 
-        await axios.put(`http://localhost:5020/rooms/${newRoom.id}`, formData, {
+        await axios.put(`https://bookingweb-sxkw.onrender.com/rooms/${newRoom.id}`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
           }

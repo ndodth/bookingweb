@@ -27,7 +27,7 @@ const RenderUsageStats = () => {
 	const fetchData = async (id, month) => {
 		try {
 			const token = localStorage.getItem('token')
-			const response = await axios.get(`http://localhost:5020/reports/roomUsed?room_id=${id}&month=${month}`, {
+			const response = await axios.get(`https://bookingweb-sxkw.onrender.com/reports/roomUsed?room_id=${id}&month=${month}`, {
 				headers: {
 					Authorization: `Bearer ${token}`,
 				},
@@ -59,7 +59,7 @@ const RenderUsageStats = () => {
 		const fetchRooms = async () => {
 			try {
 				const token = localStorage.getItem('token')
-				const response = await axios.get('http://localhost:5020/rooms', {
+				const response = await axios.get('https://bookingweb-sxkw.onrender.com/rooms', {
 					headers: {
 						Authorization: `Bearer ${token}`,
 					},
