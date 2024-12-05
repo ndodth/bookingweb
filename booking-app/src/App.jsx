@@ -85,7 +85,7 @@ const App = () => {
   return (
     <Router>
       <div className="container-fluid">
-        <Header />
+        {/* <Header /> */}
         <div className="row">
 
           <div className="col-md-2 col-sm-1 col-lg-2">
