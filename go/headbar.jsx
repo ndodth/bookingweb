@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import '../css/bootstrap.min.css';
-import '../js/bootstrap.js';
+import '../booking-app/src/assets/js/bootstrap.js';
 import mut from '../pic/mut.png';
 
 function Header() {
