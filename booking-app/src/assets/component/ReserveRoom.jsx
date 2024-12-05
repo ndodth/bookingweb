@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../css/bootstrap.min.css";
-import "../js/bootstrap.js";
+// import "../js/bootstrap.js";
 import SeachIcon from "../pic/search.png";
 import RoomImage from "../pic/room1.jpg";
 import { useNavigate } from "react-router-dom";

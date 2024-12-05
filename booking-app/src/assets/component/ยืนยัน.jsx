@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import '../css/bootstrap.min.css';
-import '../js/bootstrap.js';
+// import '../js/bootstrap.js';
 import qr from '../pic/qr-code.png';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";

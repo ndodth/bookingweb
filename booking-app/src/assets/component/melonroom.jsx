@@ -1,7 +1,7 @@
 // File: RoomDetails.jsx
 import React from 'react';
 import '../css/bootstrap.min.css';
-import '../js/bootstrap.js';
+// import '../js/bootstrap.js';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 

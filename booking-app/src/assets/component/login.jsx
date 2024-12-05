@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom'; // นำเข้า Link จาก react-router-dom
 import '../css/bootstrap.min.css';
-import '../js/bootstrap.js';
+// import '../js/bootstrap.js';
 import mut_bg from '../pic/background.png';
 import userIcon from '../pic/user.png'; // นำเข้ารูปไอคอน
 import passwordIcon from '../pic/padlock.png';
