@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "vite preview",
-  "postinstall": "patch-package"
+    "postinstall": "patch-package"
 }
   ,
   "dependencies": {
