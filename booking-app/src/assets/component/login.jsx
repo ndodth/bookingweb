@@ -16,6 +16,8 @@ function LoginForm({ onLogin, onAdmin }) {
   const [user, setUser] = useState('');
   const [pass, setPass] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false); // สถานะการโหลด
+
 
   // ดึงค่าจาก localStorage
   const storedEmail = localStorage.getItem('email');
@@ -29,6 +31,8 @@ function LoginForm({ onLogin, onAdmin }) {
     e.preventDefault();
     console.log(user)
     console.log(pass)
+    setLoading(true); // เริ่มโหลด
+
 
     axios.post('https://bookingweb-sxkw.onrender.com/login', {
       email: user,
@@ -44,7 +48,11 @@ function LoginForm({ onLogin, onAdmin }) {
       .catch(error => {
         console.error('Login failed:', error);
         alert('Login failed')
-      });
+        
+      })
+      .finally(() => {
+        setLoading(false); // หยุดโหลด
+      });;
   };
 
   const handleAdmin = () => {
@@ -81,7 +89,14 @@ function LoginForm({ onLogin, onAdmin }) {
     >
       <div className="text-center m-5" style={{ width: '50vw', padding: '10vh 10vw', backgroundColor: 'white', borderRadius: '10px' }}>
         <h1 className='display-4 fw-bold mb-5'>Login</h1>
+        {loading ? ( // แสดงข้อความ Loading
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        ) : (
+        <>
         <div>user:ww@gmail.com pass:123</div>
+        
         <form onSubmit={handleSubmit}>
           <div className="form-group fw-bold text-start mb-5">
             <label htmlFor="username" style={{ textShadow: '2px 2px 5px rgba(0, 0, 0, 0.3)' }}>Username</label>
@@ -141,7 +156,9 @@ function LoginForm({ onLogin, onAdmin }) {
             <button type="submit" className="btn btn-primary px-4" style={{ backgroundColor: "#49647C" }}>Confirm</button>
           </div>
         </form>
+        </>)}
       </div>
+     
       <div className='align-self-end'>
         <Link to="/home" className="btn btn-primary px-4 text-end" style={{ backgroundColor: "#49647C" }} onClick={handleAdmin}> ตำแหน่งAdmin Test
         </Link>

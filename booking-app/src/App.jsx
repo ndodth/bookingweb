@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-// import Header from '../../go/headbar';
+import Header from './assets/component/headbar';
 import Sidebar from './assets/component/sidebar';
 import LoginForm from './assets/component/login';
 import RegisterForm from './assets/component/Registerform';
@@ -85,7 +85,7 @@ const App = () => {
   return (
     <Router>
       <div className="container-fluid">
-        {/* <Header /> */}
+        <Header />
         <div className="row">
 
           <div className="col-md-2 col-sm-1 col-lg-2">
