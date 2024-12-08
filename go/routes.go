@@ -9,10 +9,20 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/nedpals/supabase-go"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 )
 
+var supabaseClient *supabase.Client
+
+func init() {
+	// ตั้งค่า Supabase Client
+	supabaseURL := os.Getenv("SUPABASE_URL1")
+	serviceKey := os.Getenv("SUPABASE_KEY")
+	supabaseClient = supabase.CreateClient(supabaseURL, serviceKey)
+}
 func getRoomHandler(c *fiber.Ctx) error {
 	fmt.Println("getRoomHandler")
 	id, err := strconv.Atoi(c.Params("id"))
@@ -468,14 +478,15 @@ func loginHandler(c *fiber.Ctx) error {
 	// รับข้อมูลผู้ใช้
 	user := new(User)
 	if err := c.BodyParser(user); err != nil {
-		fmt.Println("BodyParser")
+		fmt.Println("BodyParser Error")
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
 
-	// ตรวจสอบการล็อกอินจาก Supabase
-	if err := loginUser(user.Email, user.Password); err != nil {
-		fmt.Println("loginUser")
-		return c.Status(fiber.StatusUnauthorized).SendString(err.Error())
+	// ใช้ Supabase Auth ในการตรวจสอบข้อมูล
+	authResponse, err := supabaseClient.Auth.SignInWithPassword(user.Email, user.Password)
+	if err != nil {
+		fmt.Println("Supabase Auth Error")
+		return c.Status(fiber.StatusUnauthorized).SendString("Invalid Email or Password")
 	}
 
 	// สร้าง JWT token
@@ -483,8 +494,8 @@ func loginHandler(c *fiber.Ctx) error {
 
 	// ตั้งค่า claims
 	claims := token.Claims.(jwt.MapClaims)
-	claims["Email"] = user.Email
-	claims["Exp"] = time.Now().Add(time.Hour * 72).Unix()
+	claims["email"] = authResponse.User.Email
+	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
 	// เซ็นต์และสร้าง token
 	t, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))

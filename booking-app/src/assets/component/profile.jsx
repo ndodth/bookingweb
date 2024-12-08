@@ -45,7 +45,7 @@ function Profile() {
 
     try {
       const response = await axios.put(
-        `https://bookingweb-sxkw.onrender.com/employees/${profile.ID}/upload`, 
+        `https://bookingweb-sxkw.onrender.com/employees/${profile.ID}/upload`,
         formData,
         {
           headers: {
@@ -77,9 +77,17 @@ function Profile() {
     try {
       const token = localStorage.getItem("token");
       if (fieldName === "Email") {
-        const { user, error } = await supabase.auth.update({ email: editedProfile.Email });
-      
-        if (error) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          console.error("No active session found!");
+          alert("กรุณาเข้าสู่ระบบก่อนเปลี่ยนอีเมล");
+          return;
+        }
+
+        const { data, error } = await supabase.auth.updateUser({
+          email: editedProfile,
+        })
+        if (error) {ห
           console.error("Error updating email:", error);
           setError("เกิดข้อผิดพลาดในการอัปเดตอีเมล");
           return;
@@ -97,7 +105,7 @@ function Profile() {
       setProfile({ ...profile, ...updatedProfile });
       setEditingField(null);
       setError("");
-      
+
     } catch (err) {
       setError("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
       console.error(`Error saving ${fieldName}:`, err);
@@ -146,7 +154,7 @@ function Profile() {
                   แก้ไขรูปภาพ
                 </button>
               </>
-            ):(<div className = "fs-4 text-secondary">     ปุ่มแก้ไขรูปภาพถูกปิดไว้สำหรับ ID นี้</div>)}
+            ) : (<div className="fs-4 text-secondary">     ปุ่มแก้ไขรูปภาพถูกปิดไว้สำหรับ ID นี้</div>)}
           </div>
           <div className="ms-4" style={{ width: "100%" }}>
             {["Name", "Lname", "Email", "Sex"].map((field) => (
@@ -155,10 +163,10 @@ function Profile() {
                   {field === "Name"
                     ? "ชื่อ"
                     : field === "Lname"
-                    ? "นามสกุล"
-                    : field === "Email"
-                    ? "อีเมล์"
-                    : "เพศ"}
+                      ? "นามสกุล"
+                      : field === "Email"
+                        ? "อีเมล์"
+                        : "เพศ"}
                   :
                 </span>{" "}
                 {editingField === field ? (
