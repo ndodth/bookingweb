@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
-const supabase = createClient("https://irjkmykjxnmbyschjiyn.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlyamtteWtqeG5tYnlzY2hqaXluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI3NzU0MTksImV4cCI6MjA0ODM1MTQxOX0.ZLSLI4CKjj6TNXMVzevvEIFmZJqfylRAb7TUax5AQz4");
 
 import "../css/bootstrap.min.css";
 // import "../js/bootstrap.js";
