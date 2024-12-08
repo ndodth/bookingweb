@@ -78,12 +78,13 @@ function Profile() {
       const token = localStorage.getItem("token");
       if (fieldName === "Email") {
         const { user, error } = await supabase.auth.update({ email: editedProfile.Email });
-  
+      
         if (error) {
           console.error("Error updating email:", error);
           setError("เกิดข้อผิดพลาดในการอัปเดตอีเมล");
           return;
         }
+      }
       const updatedProfile = {
         ID: parseInt(profile.ID, 10),
         [fieldName]: profile[fieldName],
@@ -96,6 +97,7 @@ function Profile() {
       setProfile({ ...profile, ...updatedProfile });
       setEditingField(null);
       setError("");
+      
     } catch (err) {
       setError("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
       console.error(`Error saving ${fieldName}:`, err);
