@@ -4,5 +4,5 @@
   },
   "include": [
     "src"
-, "../go/headbar.jsx"  ]
+, "src/assets/component/headbar.jsx"  ]
 }

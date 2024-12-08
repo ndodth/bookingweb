@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
+const supabase = createClient("https://irjkmykjxnmbyschjiyn.supabase.co", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlyamtteWtqeG5tYnlzY2hqaXluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI3NzU0MTksImV4cCI6MjA0ODM1MTQxOX0.ZLSLI4CKjj6TNXMVzevvEIFmZJqfylRAb7TUax5AQz4");
+
 import "../css/bootstrap.min.css";
 // import "../js/bootstrap.js";
 import axios from "axios";
@@ -73,7 +76,14 @@ function Profile() {
   const handleSaveField = async (fieldName) => {
     try {
       const token = localStorage.getItem("token");
-
+      if (fieldName === "Email") {
+        const { user, error } = await supabase.auth.update({ email: editedProfile.Email });
+  
+        if (error) {
+          console.error("Error updating email:", error);
+          setError("เกิดข้อผิดพลาดในการอัปเดตอีเมล");
+          return;
+        }
       const updatedProfile = {
         ID: parseInt(profile.ID, 10),
         [fieldName]: profile[fieldName],
@@ -183,7 +193,7 @@ function Profile() {
                 ) : (
                   <div className="d-flex align-items-center">
                     <span className="me-auto">{profile[field] || "N/A"}</span>
-                    {field !== "Email" || profile.ID !== 4 ? (
+                    {field !== "Email" || profile.ID !== 10 ? (
                       <button
                         className="btn btn-primary ms-auto"
                         onClick={() => handleEditField(field)}
@@ -192,7 +202,7 @@ function Profile() {
                       </button>
                     ) : (
                       <span className="text-secondary ms-2">
-                        ปกติจะแก้ได้แต่ขอปิดไว้ก่อน
+                        ขอปิดไว้สำหรับ Id Admin
                       </span>
                     )}
                   </div>

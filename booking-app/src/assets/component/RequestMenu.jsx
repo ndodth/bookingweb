@@ -52,7 +52,7 @@ function RoomRequestManagement() {
 
     try {
       const token = localStorage.getItem('token');
-      c = await axios.put(
+      const request = await axios.put(
         `https://bookingweb-sxkw.onrender.com/request/${selectedRequest.id}`,
         {}, // ค่าที่จะส่งในคำขอ PUT เช่น ข้อมูล body ถ้าไม่มีก็ใส่เป็น {} ว่าง
         {

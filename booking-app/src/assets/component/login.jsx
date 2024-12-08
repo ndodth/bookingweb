@@ -57,8 +57,8 @@ function LoginForm({ onLogin, onAdmin }) {
 
   const handleAdmin = () => {
     axios.post('https://bookingweb-sxkw.onrender.com/login', {
-      email: "admin@admin",
-      password: "1234"
+      email: "teeranatsrikaew28@gmail.com",
+      password: "123456"
     })
       .then(response => {
         const token = response.data.token;
@@ -95,7 +95,6 @@ function LoginForm({ onLogin, onAdmin }) {
           </div>
         ) : (
         <>
-        <div>user:ww@gmail.com pass:123</div>
         
         <form onSubmit={handleSubmit}>
           <div className="form-group fw-bold text-start mb-5">
