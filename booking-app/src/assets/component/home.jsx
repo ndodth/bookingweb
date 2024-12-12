@@ -306,7 +306,7 @@ useEffect(() => {
       setSelectedTime2(null); // รีเซ็ตเวลาสิ้นสุด
     
   }
-}, [selectedDate, selectedTime, selectedTime2]);
+}, [selectedDate]);
 
 
 

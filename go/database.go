@@ -724,6 +724,7 @@ func getAddresses() ([]Address, error) {
 
 func cancelRoom(id int, cancel Cancel) error {
 	// เริ่ม transaction
+	fmt.Println("cancelRoom")
 	tx, err := db.Begin()
 	if err != nil {
 		return err
