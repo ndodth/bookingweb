@@ -774,7 +774,9 @@ func cancelRoom(id int, cancel Cancel) error {
 
 		return err
 	}
-	fmt.Println("pass SELECT max(id)", err)
+	fmt.Println(" cancel_id", cancel_id)
+	fmt.Println(" BookingID", cancel.BookingID)
+	fmt.Println(" cancel.EmployeeID", cancel.EmployeeID)
 
 	query = `INSERT INTO cancel(id, reason, booking_id, employee_id)
 			VALUES($1, $2, $3, $4)`
