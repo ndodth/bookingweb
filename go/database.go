@@ -727,6 +727,7 @@ func cancelRoom(id int, cancel Cancel) error {
 	fmt.Println("cancelRoom")
 	tx, err := db.Begin()
 	if err != nil {
+		fmt.Println("begin", err)
 		return err
 	}
 	defer func() {
