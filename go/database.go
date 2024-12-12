@@ -780,7 +780,7 @@ func cancelRoom(id int, cancel Cancel) error {
 			VALUES($1, $2, $3, $4)`
 	_, err = tx.Exec(query, cancel_id+1, cancel.Reason, cancel.BookingID, cancel.EmployeeID)
 	if err != nil {
-		query = `INSERT`
+		fmt.Println("INSERT", err)
 
 		return err
 	}
