@@ -730,6 +730,8 @@ func cancelRoom(id int, cancel Cancel) error {
 		fmt.Println("begin", err)
 		return err
 	}
+	fmt.Println("defer")
+
 	defer func() {
 		if p := recover(); p != nil {
 			tx.Rollback() // ถ้าเกิด panic ให้ rollback
@@ -740,6 +742,7 @@ func cancelRoom(id int, cancel Cancel) error {
 			err = tx.Commit() // ถ้าไม่มี error ให้ commit
 		}
 	}()
+	fmt.Println("end defer")
 
 	var status_id int
 	query := `SELECT id FROM booking_status WHERE name=$1`
