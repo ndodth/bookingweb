@@ -551,11 +551,14 @@ func unlockRoomHandler(c *fiber.Ctx) error {
 func cancelRoomHandler(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
+		fmt.Println("strconv", err)
+
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 	var cancel Cancel
 	err = c.BodyParser(cancel)
 	if err != nil {
+		fmt.Println("BodyParser", err)
 		return err
 	}
 	err = cancelRoom(id, cancel)

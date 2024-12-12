@@ -744,6 +744,8 @@ func cancelRoom(id int, cancel Cancel) error {
 	query := `SELECT id FROM booking_status WHERE name=$1`
 	err = tx.QueryRow(query, "Canceled").Scan(&status_id)
 	if err != nil {
+		fmt.Println("SELECTs id FROM booking_status W", err)
+
 		return err
 	}
 
@@ -754,6 +756,7 @@ func cancelRoom(id int, cancel Cancel) error {
 	`
 	_, err = tx.Exec(query, status_id, id)
 	if err != nil {
+		fmt.Println("UPDATE booking", err)
 		return err
 	}
 
@@ -761,6 +764,8 @@ func cancelRoom(id int, cancel Cancel) error {
 	query = `SELECT max(id) from cancel`
 	err = tx.QueryRow(query).Scan(&cancel_id)
 	if err != nil {
+		fmt.Println("max(id", err)
+
 		return err
 	}
 
@@ -768,6 +773,8 @@ func cancelRoom(id int, cancel Cancel) error {
 			VALUES($1, $2, $3, $4)`
 	_, err = tx.Exec(query, cancel_id+1, cancel.Reason, cancel.BookingID, cancel.EmployeeID)
 	if err != nil {
+		query = `INSERT`
+
 		return err
 	}
 
