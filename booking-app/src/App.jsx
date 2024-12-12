@@ -150,11 +150,9 @@ const App = () => {
                   <Route path="/PositionManagement" element={<PositionManagement />} />
 
                 </>)}
-
-
-
-
               <Route path="/QRCodeScanner" element={<QRCodeScanner />} />
+              <Route path="/" element={<Navigate to="/home" />} />
+
 
             </Routes>
           </div>

@@ -42,7 +42,7 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
         };
       
         fetchData();
-    }, 50);
+    }, 500);
       }, [isLoggedIn]);
 
       console.log("Permission",Permission)

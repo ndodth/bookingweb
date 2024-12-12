@@ -14,7 +14,6 @@ import (
 
 // ฟังก์ชันสำหรับสร้างผู้ใช้ใหม่
 func createEmployeeInDB(employee *Employee) error {
-	// เชื่อมต่อกับ Supabase Auth
 	authClient := auth.New(os.Getenv("SUPABASE_URL"), os.Getenv("SUPABASE_API_KEY"))
 
 	signupRequest := types.SignupRequest{
@@ -32,9 +31,11 @@ func createEmployeeInDB(employee *Employee) error {
 		return fmt.Errorf("email already confirmed")
 	}
 	// ตรวจสอบว่าอีเมลมีในฐานข้อมูลอยู่แล้วหรือไม่
+	var email string
+
 	var id int
 	query := `SELECT email FROM employee WHERE email=$1`
-	err = db.QueryRow(query, employee.Email).Scan(&id)
+	err = db.QueryRow(query, employee.Email).Scan(&email)
 	if err != nil && err != sql.ErrNoRows {
 		return fmt.Errorf("database query error: %v", err)
 	}

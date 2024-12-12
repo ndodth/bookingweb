@@ -42,14 +42,11 @@ function Home(isLoggedIn) {
       });
 
       const data = response.data;
-      console.log("data state", data.state);
 
       if (data.state === "locked") {
-        console.log(data.state);
         setErrorMessage("ท่านถูกล็อคจากระบบ กรุณาติดต่อผู้ดูแลระบบเพื่อดำเนินการต่อ");
         setStateLocked(true);
       } else if (data.state === "free") {
-        console.log("free");
         setErrorMessage("ไม่พบห้องที่ต้องการ");
         setStateLocked(false);
       }
@@ -59,7 +56,6 @@ function Home(isLoggedIn) {
   };
   const fetchRooms = async () => {
     try {
-      console.log("test", isLoggedIn)
 
       const response = await axios.get('https://bookingweb-sxkw.onrender.com/home'); // URL ของ API
 
@@ -123,9 +119,10 @@ function Home(isLoggedIn) {
   }
 
 
-}, 50);
+}, 500);
 
 }, []);
+
 
 async function fetchFilteredRooms(event) {
   var check = 1;
@@ -174,7 +171,6 @@ async function fetchFilteredRooms(event) {
     const data = await response.json();
     setFilteredRooms(data);
 
-    console.log(data);
 
 
   }
@@ -212,10 +208,7 @@ const handleSelectRoom = (room) => {
     setModalMessage("เวลาเริ่มต้นต้องน้อยกว่าเวลาสิ้นสุด");
     setShowModal(true);
   } else {
-    console.log(" room.room_pic", room.room_pic)
-    console.log(" room", room)
-    console.log("selectedTime",selectedTime.value)
-    console.log(" selectedTime2", selectedTime2.value)
+    
 
     navigate("/ยืนยัน", {
       state: {
@@ -289,6 +282,34 @@ const timeOptions = [
   { value: '18.00', label: '18.00' },
 ];
 
+const currentTime = new Date();
+const currentHour = currentTime.getHours();
+const currentMinute = currentTime.getMinutes();
+const currentTimeString = parseFloat(`${currentHour-1}.${currentMinute < 10 ? '0' + currentMinute : currentMinute}`);
+
+const selectedDateObject = new Date(selectedDate);
+const isToday = selectedDateObject.toDateString() === currentTime.toDateString();
+
+const filteredTimeOptions = timeOptions.filter(option => {
+  if (isToday) {
+    return parseFloat(option.value) >= currentTimeString;
+  } else {
+    return true;
+  }
+});
+useEffect(() => {
+  if (isToday) {
+    
+      setSelectedTime(null); // รีเซ็ตเวลาเริ่มต้น
+    
+   
+      setSelectedTime2(null); // รีเซ็ตเวลาสิ้นสุด
+    
+  }
+}, [selectedDate, selectedTime, selectedTime2]);
+
+
+
 
 return (
   <div className="container">
@@ -354,13 +375,15 @@ return (
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
                 aria-label="เลือกวันที่"
+                min={new Date().toISOString().split('T')[0]} // กำหนดเป็นวันที่ปัจจุบัน
+
               />
             </div>
 
             <div className="col-md-3 mb-2">
               <label>เลือกเวลาเริ่มต้น</label>
               <Select
-                options={timeOptions}
+                options={filteredTimeOptions}
                 value={selectedTime}
                 onChange={setSelectedTime}
                 placeholder="เลือกเวลาเริ่มต้น"
@@ -371,7 +394,7 @@ return (
             <div className="col-md-3 mb-2">
               <label>เลือกเวลาสิ้นสุด</label>
               <Select
-                options={timeOptions}
+                options={filteredTimeOptions}
                 value={selectedTime2}
                 onChange={setSelectedTime2}
                 placeholder="เลือกเวลาสิ้นสุด"

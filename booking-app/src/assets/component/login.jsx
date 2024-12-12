@@ -8,6 +8,8 @@ import passwordIcon from '../pic/padlock.png';
 import '../css/login.css';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
+import mut from '../pic/mut.png';
+import question from '../../../public/img/info/question.png';
 
 
 function LoginForm({ onLogin, onAdmin }) {
@@ -19,13 +21,7 @@ function LoginForm({ onLogin, onAdmin }) {
   const [loading, setLoading] = useState(false); // สถานะการโหลด
 
 
-  // ดึงค่าจาก localStorage
-  const storedEmail = localStorage.getItem('email');
-  const storedPassword = localStorage.getItem('password');
 
-  // ใช้ค่าใน state หรือ localStorage ถ้าไม่มี
-  const emailToCheck = Email || storedEmail;
-  const passwordToCheck = passwordFromState || storedPassword;
 
   
   const handleSubmit = (e) => {
@@ -78,6 +74,8 @@ function LoginForm({ onLogin, onAdmin }) {
   };
 
   return (
+    
+    
     <div
       className="d-flex justify-content-center align-items-center"
       style={{
@@ -87,9 +85,18 @@ function LoginForm({ onLogin, onAdmin }) {
         backgroundColor: 'rgba(0, 0, 0, 0.1)',
         borderRadius: '10px'
       }}
-    >
+    > 
       <div className="text-center m-5" style={{ width: '50vw', padding: '10vh 10vw', backgroundColor: 'white', borderRadius: '10px' }}>
+      <div className='fs-2'>Made by Teeranat Srikaew</div>
+
         <h1 className='display-4 fw-bold mb-5'>Login</h1>
+        <p>นี่เป็น miniprojectของมหาลัย ที่นำมาทำต่อเพื่อใส่เป็นประวัติ</p>
+        <p>ในทุกๆหน้าจะมีคำอธิบายอยู่ที่ปุ่ม   <img src={question}  style={{ width: '50px',height:'50px',padding:'10px',borderRadius: '50%',    backgroundColor:'transparent',borderColor:'black',border:"1px" // สีฟ้า 
+ }} alt="Logo" /> มุมขวาบน
+        </p>
+
+
+
         {loading ? ( // แสดงข้อความ Loading
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Loading...</span>

@@ -65,7 +65,7 @@ const RegisterForm = () => {
         },
         body: JSON.stringify(user),
       });
-
+      console.log(response)
       if (response.ok) {
         const data = await response.json();
         approve();
