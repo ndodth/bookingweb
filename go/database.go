@@ -775,7 +775,7 @@ func cancelRoom(id int, cancel Cancel) error {
 		return err
 	}
 	fmt.Println(" cancel_id", cancel_id)
-	fmt.Println(" BookingID", cancel.BookingID)
+	fmt.Println(" BookingID", id)
 	fmt.Println(" cancel.EmployeeID", cancel.EmployeeID)
 
 	query = `INSERT INTO cancel(id, reason, booking_id, employee_id)

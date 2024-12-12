@@ -556,6 +556,7 @@ func cancelRoomHandler(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 	var cancel Cancel
+
 	err = c.BodyParser(&cancel)
 	if err != nil {
 		fmt.Println("BodyParser", err)
