@@ -26,8 +26,7 @@ function LoginForm({ onLogin, onAdmin }) {
   
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(user)
-    console.log(pass)
+   
     setLoading(true); // เริ่มโหลด
 
 

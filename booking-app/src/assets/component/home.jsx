@@ -8,6 +8,7 @@ import Select from 'react-select';
 import SeachIcon from '../pic/search.png';
 
 function Home(isLoggedIn) {
+  const [loading, setLoading] = useState(false); // สถานะการโหลด
 
 
   const [filteredRooms, setFilteredRooms] = useState([]);
@@ -56,6 +57,7 @@ function Home(isLoggedIn) {
   };
   const fetchRooms = async () => {
     try {
+      setLoading(true); 
 
       const response = await axios.get('https://bookingweb-sxkw.onrender.com/home'); // URL ของ API
 
@@ -91,6 +93,7 @@ function Home(isLoggedIn) {
       setroomOptions(rooms);
       settypeOptions(types);
       setFilteredRooms(response.data)
+      setLoading(false);
 
     } catch (error) {
       console.error('Error fetching rooms:', error);
@@ -312,6 +315,7 @@ useEffect(() => {
 
 
 return (
+  
   <div className="container">
     {/* Search bar on top */}
     <div className="row mb-3" style={{ marginTop: '20px' }}>
@@ -424,6 +428,26 @@ return (
       </div>
     </div>
 
+    {loading ? ( // แสดงข้อความ Loading
+  <div
+    className="d-flex justify-content-center align-items-center"
+    style={{
+      height: '50vh', // ใช้เพื่อให้ความสูงเต็มจอ
+    }}
+  >
+    <div
+      className="spinner-border text-primary"
+      role="status"
+      style={{
+        width: '5rem', // ปรับขนาดความกว้าง
+        height: '5rem', // ปรับขนาดความสูง
+      }}
+    >
+      <span className="visually-hidden">Loading...</span>
+    </div>
+  </div>
+        ) : (
+        <>
     {/* Display Rooms */}
     {stateLocked ? (
       <p className="text-danger mt-2 fs-3">{errorMessage}</p>
@@ -492,6 +516,7 @@ return (
       </div>
     </>
     )}
+    </>)}
 
     {showModal && (
       <div

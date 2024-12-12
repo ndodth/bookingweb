@@ -523,7 +523,6 @@ func bookRoomHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	fmt.Println(book.StatusID)
 	err = bookRoom(book)
 	if err != nil {
 		return err

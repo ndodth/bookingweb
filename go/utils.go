@@ -100,7 +100,7 @@ func checkQrUsedOrNot() {
 		return
 	}
 	for _, b := range bookings {
-		if compare.After(b.StartTime.Add(5 * time.Minute)) {
+		if compare.After(b.StartTime.Add(30 * time.Minute)) {
 			wg.Add(1)
 			go checkBookingStatus(b.ID, &wg)
 

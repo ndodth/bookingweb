@@ -7,7 +7,6 @@ import (
 	"image/jpeg"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -515,15 +514,6 @@ func bookRoom(booking *Booking) error {
 		fmt.Println("Error parsing endTime:", err)
 		return err
 	}
-	location, err := time.LoadLocation("Asia/Bangkok")
-	if err != nil {
-		log.Fatal(err)
-	}
-	startTime = startTime.In(location)
-	endTime = endTime.In(location)
-
-	fmt.Println("startTime:", startTime, "Location:", startTime.Location())
-	fmt.Println("endTime:", endTime, "Location:", endTime.Location())
 
 	if err != nil {
 		fmt.Println("Error parsing EndTime:", err)
@@ -724,13 +714,11 @@ func getAddresses() ([]Address, error) {
 
 func cancelRoom(id int, cancel Cancel) error {
 	// เริ่ม transaction
-	fmt.Println("cancelRoom")
 	tx, err := db.Begin()
 	if err != nil {
 		fmt.Println("begin", err)
 		return err
 	}
-	fmt.Println("defer")
 
 	defer func() {
 		if p := recover(); p != nil {
@@ -742,7 +730,6 @@ func cancelRoom(id int, cancel Cancel) error {
 			err = tx.Commit() // ถ้าไม่มี error ให้ commit
 		}
 	}()
-	fmt.Println("end defer")
 
 	var status_id int
 	query := `SELECT id FROM booking_status WHERE name=$1`
@@ -752,7 +739,6 @@ func cancelRoom(id int, cancel Cancel) error {
 
 		return err
 	}
-	fmt.Println("pass SELECT", err)
 
 	query = `
 		UPDATE booking
@@ -764,7 +750,6 @@ func cancelRoom(id int, cancel Cancel) error {
 		fmt.Println("UPDATE booking", err)
 		return err
 	}
-	fmt.Println("pass updatebooking", err)
 
 	var cancel_id int
 	query = `SELECT max(id) from cancel`
@@ -774,9 +759,6 @@ func cancelRoom(id int, cancel Cancel) error {
 
 		return err
 	}
-	fmt.Println(" cancel_id", cancel_id)
-	fmt.Println(" BookingID", id)
-	fmt.Println(" cancel.EmployeeID", cancel.EmployeeID)
 
 	query = `INSERT INTO cancel(id, reason, booking_id, employee_id)
 			VALUES($1, $2, $3, $4)`
