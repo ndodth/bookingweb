@@ -562,6 +562,12 @@ func cancelRoomHandler(c *fiber.Ctx) error {
 		fmt.Println("BodyParser", err)
 		return err
 	}
+	token := c.Locals(userContextKey).(*Auth)
+	userEmail := token.Email
+	err = db.QueryRow(`SELECT id FROM employee WHERE email = $1`, userEmail).Scan(&cancel.EmployeeID)
+	if err != nil {
+		return err
+	}
 	err = cancelRoom(id, cancel)
 	if err != nil {
 		return err
