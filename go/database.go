@@ -777,7 +777,7 @@ func cancelRoom(id int, cancel Cancel) error {
 
 		return err
 	}
-
+	fmt.Println("end cancle")
 	return nil
 }
 
