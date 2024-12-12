@@ -39,6 +39,8 @@ func home(c *fiber.Ctx) error {
 
 	selectedTime := formatTime(begin)
 	selectedTime2 := formatTime(end)
+	fmt.Println("selectedTime", selectedTime)
+	fmt.Println("selectedTime2", selectedTime2)
 
 	query := `
     SELECT DISTINCT r.id, r.name, r.description, r.room_status_id, r.cap, r.room_type_id, f.name, b.name, rt.name, r.room_pic
