@@ -54,7 +54,7 @@ func home(c *fiber.Ctx) error {
 	if selectedTime != "" && selectedTime2 != "" && selectedDate != "" {
 		query += `
 		LEFT JOIN BOOKING book ON r.id = book.room_id 
-		AND TRUNC(book.start_time) = TO_DATE($` + strconv.Itoa(placeholderIndex+1) + `, 'YYYY-MM-DD')
+    AND DATE(book.start_time) = TO_DATE($` + strconv.Itoa(placeholderIndex+1) + `, 'YYYY-MM-DD')
 		WHERE (book.room_id IS NULL OR book.status_id  IN (2, 3, 4)) 
 		AND (
 			(book.status_id IS NULL) OR
