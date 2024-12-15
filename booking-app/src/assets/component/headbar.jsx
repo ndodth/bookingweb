@@ -7,7 +7,7 @@ import mut from '../pic/mut.png';
 import question from '../../../public/img/info/question.png';
 import home from '../../../public/img/info/home.png'
 import home2 from '../../../public/img/info/home2.png'
-import ReserveRoom from '../../../public/img/info/reserveRoom.png'
+import ReserveRoom from '../../../public/img/info/reserveroom.png'
 
 // import questionIcon from '../pic/question.png'; // ไอคอนสำหรับปุ่ม
 
