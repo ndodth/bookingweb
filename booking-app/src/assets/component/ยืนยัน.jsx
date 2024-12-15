@@ -20,6 +20,8 @@ const formatDateTime = (date) => {
 };
 
 function ยืนยันห้อง() {
+    const [loading, setLoading] = useState(false); // สถานะการโหลด
+
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -28,7 +30,6 @@ function ยืนยันห้อง() {
     const [isConfirmed, setIsConfirmed] = useState(false);
     const [vipshowModal, setvipshowModals] = useState(false);
     var [reason, setReason] = useState('');
-console.log(roomData)
 
 
     const handleApproveClick = () => {
@@ -46,10 +47,12 @@ console.log(roomData)
         return 5;
     };
     const success = async () => {
+        setLoading(true); // เริ่มโหลด
+
         const token = localStorage.getItem('token');
         const now = new Date();
         const timenow = formatDateTime(now);
-        console.log("roomData",roomData)
+        console.log("roomData", roomData)
 
 
         const [hour, minute] = selectedTime.split(".");
@@ -62,11 +65,10 @@ console.log(roomData)
         const end = `${selectedDate} ${endtime}`;
         const typeroom = findstatus()
         console.log(start);
-        console.log("reson before",reason)
-        if(reason==''){
-                reason = "ห้องปกติ"
+        console.log("reson before", reason)
+        if (reason == '') {
+            reason = "ห้องปกติ"
         }
-        console.log(roomData)
         const sender = {
 
             "booking_date": timenow,
@@ -87,15 +89,19 @@ console.log(roomData)
             });
 
             setIsConfirmed(true);
+
+
         } catch (error) {
             console.error("Error confirming booking:", error);
-            alert("เกิดข้อพิดพลาดในการยืนยันห้อง");
+            alert("เกิดข้อผิดพลาด: ไม่สามารถยืนยันการจองได้ในขณะนี้");
+        } finally {
+            setLoading(false); // หยุดโหลดไม่ว่าจะสำเร็จหรือไม่
         }
     };
+
     const after = () => {
-        console.log(roomData)
         navigate('/ReserveRoom');
-      };
+    };
 
     const formatSelectedDate = (date) => {
         if (!date) return '';
@@ -196,26 +202,35 @@ console.log(roomData)
 
             {/* Modal ยืนยันการยอมรับคำร้อง */}
             <Modal show={showModal1} onHide={() => {
-             if (isConfirmed) {
-                  after(); // เรียกใช้ฟังก์ชัน after ถ้า isConfirmed เป็น true
-                        }
-                    setShowModal1(false); 
-                }} centered>                
-<div style={{ backgroundColor: '#49647C', color: 'white', borderRadius: '10px' }}>
+                if (isConfirmed) {
+                    after(); // เรียกใช้ฟังก์ชัน after ถ้า isConfirmed เป็น true
+                }
+                setShowModal1(false);
+            }} centered>
+                <div style={{ backgroundColor: '#49647C', color: 'white', borderRadius: '10px' }}>
                     <Modal.Header closeButton className="d-flex justify-content-center w-100">
                         <Modal.Title className="w-100 text-center">
                             {isConfirmed ? '' : 'ยืนยันการยอมรับคำร้อง'}
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body className="container">
-                        {isConfirmed ? (<>
-                            <div className="row justify-content-center">
-                                <div className="text-center col-sm-8 p-2 text-white fs-3 mb-2" style={{
-                                    backgroundColor: '#72B676', borderRadius: '4%'
-                                }}>Succesful!!!</div>
-                            </div>
-                            
-                        </>
+                        {isConfirmed ? (
+                            <>
+                                {loading ? ( // แสดงข้อความ Loading
+                                    <div className="spinner-border text-primary" role="status">
+                                        <span className="visually-hidden">Loading...</span>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="row justify-content-center">
+                                            <div className="text-center col-sm-8 p-2 text-white fs-3 mb-2" style={{
+                                                backgroundColor: '#72B676', borderRadius: '4%'
+                                            }}>Succesful!!!</div>
+                                        </div>
+                                    </>
+                                )}
+
+                            </>
                         ) : (
                             <div className="d-flex justify-content-center">
                                 <Button variant="primary" onClick={success} className="bg-success mx-5 p-2 fs-2">
@@ -231,19 +246,34 @@ console.log(roomData)
                 </div>
             </Modal>
 
-            <Modal show={vipshowModal} onHide={() => setvipshowModals(false)} centered>
+            <Modal show={vipshowModal} onHide={() => {
+                if (isConfirmed) {
+                    after(); // เรียกใช้ฟังก์ชัน after ถ้า isConfirmed เป็น true
+                }
+                setvipshowModals(false)
+            }}centered>
                 <div style={{ backgroundColor: '#49647C', color: 'white', borderRadius: '10px' }}>
                     <Modal.Header closeButton className="d-flex justify-content-center w-100">
                         <Modal.Title className="w-100 text-center">ยืนยันการจองห้องVIP</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        {isConfirmed ? (
+                        {loading ? (
                             <>
-                                <div className="row justify-content-center">
-                                    <div className="text-center col-sm-8 p-2 text-white fs-3 mb-2" style={{
-                                        backgroundColor: '#72B676', borderRadius: '4%'
-                                    }}>โปรดรออนุมัติการใช้ห้องVIP</div>
-                                </div>
+                                {isConfirmed ? ( // แสดงข้อความ Loading
+                                    <>
+
+                                        <div className="row justify-content-center">
+                                            <div className="text-center col-sm-8 p-2 text-white fs-3 mb-2" style={{
+                                                backgroundColor: '#72B676', borderRadius: '4%'
+                                            }}>Succesful!!!</div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="spinner-border text-primary" role="status">
+                                        <span className="visually-hidden">Loading...</span>
+                                    </div>
+
+                                )}
 
                             </>
                         ) : (

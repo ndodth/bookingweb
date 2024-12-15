@@ -293,7 +293,7 @@ func checkRoomAvailability(date, startTime, endTime, selectedRoom, selectedBuild
 		params = append(params, cap)
 		placeholderIndex += 1
 	}
-	query += ` AND r.room_status_id =1 ORDER BY r.id ASC`
+	query += ` AND r.room_status_id =1`
 	var count int
 	err := db.QueryRow(query, params...).Scan(&count)
 	if err != nil {
