@@ -96,7 +96,7 @@ function melonroom() {
       </div>
 
       {/* Back Button */}
-      {/* <div className="text-center mt-4">
+      <div className="text-center mt-4">
         <button
           className="btn btn-secondary px-5 py-2"
           onClick={() => history.go(-1)}
@@ -107,7 +107,7 @@ function melonroom() {
 
 
 
-      </div> */}
+      </div>
     </div>
   );
 }

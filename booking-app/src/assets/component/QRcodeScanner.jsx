@@ -43,7 +43,9 @@ function QRCodeScanner() {
 
   // Fetch QR code image based on booking ID using Axios
   useEffect(() => {
+
     if (bookingId) {
+      console.log("test")
       axios
       .get(`https://bookingweb-sxkw.onrender.com/getImageQr/${bookingId}`)
       .then(response => {
@@ -56,21 +58,10 @@ function QRCodeScanner() {
     }
     
   }, [bookingId]);
-function test(){
-  axios
-  .get(`https://bookingweb-sxkw.onrender.com/getImageQr/${bookingId}`)
-  .then(response => {
-    const imageUrl = response.data.image_url; // ดึงค่า image_url จาก JSON
-    console.log("Image URL:", imageUrl);
-    setQrImage(imageUrl); // เก็บ URL ใน state
-  })
-  .catch(error => console.error("Error fetching QR code image:", error));
 
-}
   return (
     <div className="container d-flex flex-column align-items-center mt-5">
       <h1 className="mb-4">Scan Here!</h1>
-<button onClick={test}>test</button>
       <div className="position-relative">
         {/* Display QR Code */}
         {qrImage ? (
@@ -84,7 +75,6 @@ function test(){
         ) : (
           <>
           <p className='fs-4'>Loading QR code...(This may take a while up to 3 min )</p>
-
           </>
           
         )}

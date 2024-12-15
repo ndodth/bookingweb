@@ -674,7 +674,7 @@ func getImageQrHandler(c *fiber.Ctx) error {
 		path_file = imagePath.String
 	} else {
 		// ถ้าไม่มีค่ากำหนดเป็นภาพเริ่มต้น
-		path_file = "profile.png"
+		return nil
 	}
 
 	img := supabaseURL + "/storage/v1/object/public/qr_codes/" + path_file

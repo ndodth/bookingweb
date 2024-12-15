@@ -6,6 +6,9 @@ import '../js/bootstrap.js';
 import mut from '../pic/mut.png';
 import question from '../../../public/img/info/question.png';
 import home from '../../../public/img/info/home.png'
+import home2 from '../../../public/img/info/home2.png'
+import ReserveRoom from '../../../public/img/info/reserveRoom.png'
+
 // import questionIcon from '../pic/question.png'; // ไอคอนสำหรับปุ่ม
 
 function Header() {
@@ -47,16 +50,22 @@ function Header() {
           <h1>หน้า Home</h1>
           <img src={home} alt="Home" style={imgStyle} />
           <p className="fs-5">หน้านี้เมื่อใส่เงื่อนไขต่างๆก็จะแสดงเฉพาะแค่ห้องที่ว่างอยู่ แต่ถ้าไม่มีห้องว่างตามเงื่อนไขที่ระบุจะแสดงเวลาที่ใกล้เคียงที่สุดที่ห้องจะว่าง</p>
+          <img src={home2} alt="Home" style={imgStyle} />
+
         </div>
       );
     } else if (location.pathname === '/ReserveRoom') {
       return (
         <div>
           <h1>หน้า การจองห้อง</h1>
-          <img src={home} alt="Home" style={imgStyle} />
+          <img src={ReserveRoom} alt="Home" style={imgStyle} />
           <p className="fs-5 mb-2">หน้านี้จะแสดงถึงห้องที่คุณได้จองไว้โดยตามเนื้อหาโจทย์คือเเมื่อถึงเวลาที่จองจะมีการเจน QR codeที่แสดงตรงห้องประชุมเพื่อให้userที่จองในเวลานี้สามารถแสกนเพืื่อเข้าใช้ได้ </p>
           <br />
           <p className='fs-5'>แต่เพราะห้องทั้งหมดไม่มีจริง จึงมีปุ่มเพื่อจำลองแสดง qr code ของแต่ละห้องไว้ </p>
+          <p className='fs-5 text-info'>-Waiting   คือห้องที่รอเวลาเข้าใช้<br/></p>
+          <p className='fs-5 text-warning'>   -Pending คือสถานะรอได้รับอนุญาติการใช้ห้อง VIP<br/> </p>
+
+       
           <p className='fs-5 text-danger'>**ถ้า user ไม่มีการแสกนห้องภายใน 30 นาทีห้องจะถูกเปลี่ยนเป็นสถานะ Expired และจะถูกยกเลิกโดยอัตโนมัติ และ user จะได้รับแต้ม Lock 1 แต้ม เมื่อมีแต้มครบ3 จะทำให้ไม่สามารถจองห้องได้อีกต้องติดต่อ admin เพื่อปลดล้อค</p>
 
           <p className='fs-5 text-info'>**qrcode จะเจน ก่อนถึงเวลาเริ่มที่จองไว้5นาที </p>
