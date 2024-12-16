@@ -28,6 +28,7 @@ const RenderRoomUsageStats = () => {
 					},
 				}
 			);
+			console.log(response.data)
 			const data = response.data;
 			const labels = data.map((entry) => entry.room_name);
 			const usageData = data.map((entry) => entry.usage_count);

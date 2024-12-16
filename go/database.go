@@ -915,7 +915,7 @@ func getRoomUsageByMonth(selectedDate string) ([]RoomUsage, error) {
 		SELECT r.id, 
        r.name, 
        COUNT(b.id) AS usage_count
-FROM rooms r
+FROM room r
 LEFT JOIN booking b ON r.id = b.room_id
 AND TO_CHAR(b.start_time, 'YYYY-MM') = $1
 GROUP BY r.id, r.name
