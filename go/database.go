@@ -927,9 +927,10 @@ func getReportRoomUsed(selectedRoom string, selectedDate string) ([]Booking, err
 		conditions = append(conditions, "room_id = $1")
 		args = append(args, selectedRoom)
 	}
+	fmt.Println("selectedDate")
 	if selectedDate != "" {
 		date := formatTime(selectedDate)
-		conditions = append(conditions, "TRUNC(start_time) = TO_DATE(:2, 'YYYY-MM-DD')")
+		conditions = append(conditions, "TRUNC(start_time) = TO_DATE($2, 'YYYY-MM-DD')")
 		args = append(args, date)
 	}
 
