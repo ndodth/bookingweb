@@ -623,9 +623,8 @@ func getReportLockedEmployeesHandler(c *fiber.Ctx) error {
 func getReportRoomUsedHandler(c *fiber.Ctx) error {
 	fmt.Println("getReportRoomUsedHandler")
 
-	selectedRoom := c.Query("room_id", "")
 	selectedDate := c.Query("month", "")
-	booking, err := getReportRoomUsed(selectedRoom, selectedDate)
+	booking, err := getReportRoomUsageByMonth(selectedDate)
 	if err != nil {
 		fmt.Println("getreport err", err)
 
