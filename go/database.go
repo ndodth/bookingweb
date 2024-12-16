@@ -932,7 +932,7 @@ ORDER BY r.id;
 	var usages []RoomUsage
 	for rows.Next() {
 		var usage RoomUsage
-		if err := rows.Scan(&usage.ID, &usage.UsageCount); err != nil {
+		if err := rows.Scan(&usage.ID, &usage.Name, &usage.UsageCount); err != nil {
 			return nil, err
 		}
 		usages = append(usages, usage)
@@ -946,7 +946,9 @@ ORDER BY r.id;
 
 // RoomUsage struct สำหรับเก็บข้อมูลผลลัพธ์
 type RoomUsage struct {
-	ID         int
+	ID   int
+	Name string // ชื่อของห้อง
+
 	UsageCount int
 }
 
