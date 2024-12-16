@@ -4,6 +4,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import axios from 'axios';
 
 function RoomManagement() {
+
+  const [loading, setLoading] = useState(false); // สถานะการโหลด
+
   const [rooms, setRooms] = useState([]);
   const [editRoom, setEditRoom] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -31,6 +34,7 @@ function RoomManagement() {
   const fetchRooms = async () => {
 
     try {
+      setLoading(true)
       const token = localStorage.getItem('token');
 
       const response = await axios.get('https://bookingweb-sxkw.onrender.com/rooms', {
@@ -88,6 +92,8 @@ function RoomManagement() {
 
     } catch (error) {
       console.error('Error fetching rooms:', error);
+    }finally{
+      setLoading(false)
     }
   };
   useEffect(() => {
@@ -375,6 +381,26 @@ function RoomManagement() {
       {/* Room List */}
       <div className="row">
         <div className="col-12">
+        {loading ? ( // แสดงข้อความ Loading
+  <div
+    className="d-flex justify-content-center align-items-center"
+    style={{
+      height: '50vh', // ใช้เพื่อให้ความสูงเต็มจอ
+    }}
+  >
+    <div
+      className="spinner-border text-primary"
+      role="status"
+      style={{
+        width: '5rem', // ปรับขนาดความกว้าง
+        height: '5rem', // ปรับขนาดความสูง
+      }}
+    >
+      <span className="visually-hidden">Loading...</span>
+    </div>
+  </div>
+        ) : (
+        <>
           {filteredRooms.map((room) => (
             <div key={room.id} className="card mb-4 shadow-sm border-0">
               <div className="row g-0">
@@ -425,8 +451,7 @@ function RoomManagement() {
 
 
                 <div className="col-md-3 d-flex flex-column justify-content-center align-items-end">
-                  {((room.id !== 1) && (room.id !== 3)) ? (
-                     <>
+              
                      <button
                        className="btn btn-secondary mb-2 btn-lg"
                        onClick={() => editRoomDetails(room)}
@@ -434,31 +459,26 @@ function RoomManagement() {
                      >
                        แก้ไขข้อมูล
                      </button>
-                     <button
+                    <div className='fs-5 mb-2'> ปิดปุ่มลบรายการไว้เนื่องจากเป็นไอดีที่ทุกคนเข้าดูได้</div>
+                     {/* <button
                        className="btn btn-danger btn-lg mb-2"
                        onClick={() => deleteRoom(room.id)}
                        style={{ width: "300px", backgroundColor: "#AC5050" }}
                      >
                        ลบห้อง
-                     </button>
+                     </button> */}
                      <button className="btn btn-info btn-lg border-light"
                        onClick={() => setShowDescription(room)}
                        style={{ width: "300px", backgroundColor: "#DAEEF7" }} >
                        ดูรายละเอียด
                      </button>
-                   </>
-                  ) : (
-                    <div
-                    className="text-secondary fs-5">  *** เนื่องจากเว็บไซต์นี้เปิดให้ผู้ใช้ทุกคนเข้าถึงได้ ปุ่มแก้ไขและลบจึงถูกปิดใช้งาน ยกเว้นห้องตัวอย่างเพื่อแสดงการใช้งานในกรณีที่มีสิทธิ์แก้ไข
-
-                  </div>
-                   
-                  )}
+                  
                 </div>
 
               </div>
             </div>
           ))}
+          </>)}
         </div>
       </div>
 

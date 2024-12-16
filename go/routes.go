@@ -621,11 +621,14 @@ func getReportLockedEmployeesHandler(c *fiber.Ctx) error {
 
 // http://localhost:5020/reports/roomUsed?room_id=3&date=2024-10
 func getReportRoomUsedHandler(c *fiber.Ctx) error {
+	fmt.Println("getReportRoomUsedHandler")
+
 	selectedRoom := c.Query("room_id", "")
 	selectedDate := c.Query("month", "")
-
 	booking, err := getReportRoomUsed(selectedRoom, selectedDate)
 	if err != nil {
+		fmt.Println("getreport err", err)
+
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
 

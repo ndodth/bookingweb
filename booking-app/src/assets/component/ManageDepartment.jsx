@@ -3,6 +3,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
 
 function DepartmentManagement() {
+  const [loading, setLoading] = useState(false); // สถานะการโหลด
+
   const [departments, setDepartments] = useState([]);
   const [newDepartment, setNewDepartment] = useState({ id: "", name: "" });
   const [editDepartment, setEditDepartment] = useState(null); // แผนกที่กำลังแก้ไข
@@ -11,36 +13,40 @@ function DepartmentManagement() {
 
   // ดึงข้อมูลจาก API เมื่อ component โหลด
   useEffect(() => {
+    setLoading(true)
     const token = localStorage.getItem('token');
 
     axios
-    .get("https://bookingweb-sxkw.onrender.com/departments", {
-      headers: {
-        Authorization: `Bearer ${token}`, 
-      }
-    })
-    .then((response) => {
-      if (response.status === 200 && Array.isArray(response.data)) {
-        setDepartments(response.data);
-      } else {
-        console.error("Unexpected response:", response);
-      }
-    })
-    .catch((error) => console.error("Error fetching departments:", error));
-}, []);
+      .get("https://bookingweb-sxkw.onrender.com/departments", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      })
+      .then((response) => {
+        if (response.status === 200 && Array.isArray(response.data)) {
+          setDepartments(response.data);
+        } else {
+          console.error("Unexpected response:", response);
+        }
+      })
+      .catch((error) => console.error("Error fetching departments:", error))
+      .finally(() => {
+        setLoading(false); // หยุดโหลด
+      });;
+  }, []);
 
   // ฟังก์ชันเพิ่มแผนก
   const addNewDepartment = () => {
     if (!newDepartment.name || !newDepartment.id) {
       alert("กรุณากรอกข้อมูลให้ครบทุกช่อง");
-return
-      }
+      return
+    }
     const token = localStorage.getItem('token');
-console.log(newDepartment)
+    console.log(newDepartment)
     axios
-      .post("https://bookingweb-sxkw.onrender.com/departments", newDepartment ,{
+      .post("https://bookingweb-sxkw.onrender.com/departments", newDepartment, {
         headers: {
-          Authorization: `Bearer ${token}`, 
+          Authorization: `Bearer ${token}`,
         }
       })
       .then((response) => {
@@ -57,9 +63,9 @@ console.log(newDepartment)
     const confirmDelete = window.confirm("คุณต้องการลบแผนกนี้ใช่หรือไม่?");
     if (confirmDelete) {
       axios
-        .delete(`https://bookingweb-sxkw.onrender.com/departments/${id}` ,{
+        .delete(`https://bookingweb-sxkw.onrender.com/departments/${id}`, {
           headers: {
-            Authorization: `Bearer ${token}`, 
+            Authorization: `Bearer ${token}`,
           }
         })
         .then((response) => {
@@ -82,9 +88,9 @@ console.log(newDepartment)
 
       return; // ออกจากฟังก์ชัน
     }
-  
+
     // ลบคลาส is-invalid ถ้าข้อมูลครบถ้วน
-  
+
     const token = localStorage.getItem('token');
 
     const departmentToUpdate = {
@@ -93,11 +99,11 @@ console.log(newDepartment)
     };
     console.log(departmentToUpdate)
 
-  
+
     axios
-      .put(`https://bookingweb-sxkw.onrender.com/departments/${editDepartment.id}`, departmentToUpdate ,{
+      .put(`https://bookingweb-sxkw.onrender.com/departments/${editDepartment.id}`, departmentToUpdate, {
         headers: {
-          Authorization: `Bearer ${token}`, 
+          Authorization: `Bearer ${token}`,
         }
       })
       .then((response) => {
@@ -111,9 +117,9 @@ console.log(newDepartment)
       })
       .catch((error) => console.error("Error updating department:", error));
   };
-  
-  
-  
+
+
+
 
   // ฟังก์ชันสำหรับการค้นหาแผนก
   const filteredDepartments = departments.filter(
@@ -157,39 +163,61 @@ console.log(newDepartment)
       {/* Department List */}
       <div className="row">
         <div className="col-12">
-          {filteredDepartments.length > 0 ? (
-            filteredDepartments.map((dept) => (
-              <div key={dept.id} className="card mb-4 shadow-sm border-0">
-                <div className="row g-0">
-                  <div className="col-md-8 d-flex align-items-center">
-                    <div className="card-body d-flex flex-column">
-                      <h5 className="card-title mb-2">ชื่อแผนก : {dept.name}</h5>
-                      <p className="card-text mb-2">รหัสแผนก : {dept.id}</p>
+          {loading ? ( // แสดงข้อความ Loading
+            <div
+              className="d-flex justify-content-center align-items-center"
+              style={{
+                height: '50vh', // ใช้เพื่อให้ความสูงเต็มจอ
+              }}
+            >
+              <div
+                className="spinner-border text-primary"
+                role="status"
+                style={{
+                  width: '5rem', // ปรับขนาดความกว้าง
+                  height: '5rem', // ปรับขนาดความสูง
+                }}
+              >
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          ) : (
+            <>
+              {filteredDepartments.length > 0 ? (
+                filteredDepartments.map((dept) => (
+                  <div key={dept.id} className="card mb-4 shadow-sm border-0">
+                    <div className="row g-0">
+                      <div className="col-md-8 d-flex align-items-center">
+                        <div className="card-body d-flex flex-column">
+                          <h5 className="card-title mb-2">ชื่อแผนก : {dept.name}</h5>
+                          <p className="card-text mb-2">รหัสแผนก : {dept.id}</p>
+                        </div>
+                      </div>
+
+                      <div className="col-md-4 d-flex flex-column justify-content-center align-items-end">
+                        <button
+                          className="btn btn-secondary mb-2 mt-3 btn-lg"
+                          onClick={() => editDepartmentDetails(dept)}
+                          style={{ width: "300px", backgroundColor: "#35374B" }}
+                        >
+                          แก้ไขแผนก
+                        </button>
+                        <div className='fs-5 mb-2'> ปิดปุ่มลบรายการไว้เนื่องจากเป็นไอดีที่ทุกคนเข้าดูได้</div>
+                        {/* <button
+                          className="btn btn-danger btn-lg mb-3"
+                          onClick={() => deleteDepartment(dept.id)}
+                          style={{ width: "300px", backgroundColor: "#AC5050" }}
+                        >
+                          ลบแผนก
+                        </button> */}
+                      </div>
                     </div>
                   </div>
-
-                  <div className="col-md-4 d-flex flex-column justify-content-center align-items-end">
-                    <button
-                      className="btn btn-secondary mb-2 mt-3 btn-lg"
-                      onClick={() => editDepartmentDetails(dept)}
-                      style={{ width: "300px", backgroundColor: "#35374B" }}
-                    >
-                      แก้ไขแผนก
-                    </button>
-                    <button
-                      className="btn btn-danger btn-lg mb-3"
-                      onClick={() => deleteDepartment(dept.id)}
-                      style={{ width: "300px", backgroundColor: "#AC5050" }}
-                    >
-                      ลบแผนก
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p>ไม่พบข้อมูลแผนกที่ค้นหา</p>
-          )}
+                ))
+              ) : (
+                <p>ไม่พบข้อมูลแผนกที่ค้นหา</p>
+              )}
+            </>)}
         </div>
       </div>
 
@@ -205,7 +233,8 @@ console.log(newDepartment)
                 <button
                   type="button"
                   className="btn-close"
-                  onClick={() => setShowModal(false)}
+                  onClick={() => {setEditDepartment(null)
+                    setShowModal(false)}}
                 ></button>
               </div>
               <div className="modal-body">
@@ -220,23 +249,36 @@ console.log(newDepartment)
                     }
                   />
                 </div>
+
                 <div className="mb-3">
                   <label className="form-label">รหัสแผนก</label>
-                  <input
-                    type="number"
-                    className="form-control"
-                    value={newDepartment.id}
-                    onChange={(e) =>
-                      setNewDepartment({ ...newDepartment, id: e.target.value })
-                    }
-                  />
+                  {(editDepartment ?
+                    <>
+                      <div style={{
+                        border: "1px solid black", borderRadius: "4%",
+                        backgroundColor: "#f8f9fa"
+                      }}
+                        className='p-2'>
+                        {newDepartment.id}
+                      </div>
+                    </> :
+                    <input
+                      type="number"
+                      className="form-control"
+                      value={newDepartment.id}
+                      onChange={(e) =>
+                        setNewDepartment({ ...newDepartment, id: e.target.value })
+                      }
+                    />)}
                 </div>
+
               </div>
               <div className="modal-footer">
                 <button
                   type="button"
                   className="btn btn-secondary"
-                  onClick={() => setShowModal(false)}
+                  onClick={() => {setEditDepartment(null)
+                    setShowModal(false)}}
                 >
                   ปิด
                 </button>

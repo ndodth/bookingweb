@@ -5,10 +5,13 @@ import axios from 'axios';
 function LockListManagement() {
   const [lockedEmployees, setLockedEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false); // สถานะการโหลด
+
 
   useEffect(() => {
     const fetchLockedEmployees = async () => {
       try {
+        setLoading(true)
         const token = localStorage.getItem('token'); // ดึง token จาก localStorage
 
         const response = await axios.get('https://bookingweb-sxkw.onrender.com/locks/LockListManagement', {
@@ -20,6 +23,8 @@ function LockListManagement() {
         console.log("response", response.data);
       } catch (error) {
         console.error('Error fetching locked employees:', error);
+      } finally {
+        setLoading(false); // หยุดโหลด
       }
     };
     fetchLockedEmployees();
@@ -86,56 +91,78 @@ function LockListManagement() {
       {/* Lock List */}
       <div className="row">
         <div className="col-12">
-          {filteredEmployees.length === 0 ? (
-            <div className='fs-3 text-center'>ไม่มีพนักงานที่มีการเตือน</div>
+          {loading ? ( // แสดงข้อความ Loading
+            <div
+              className="d-flex justify-content-center align-items-center"
+              style={{
+                height: '50vh', // ใช้เพื่อให้ความสูงเต็มจอ
+              }}
+            >
+              <div
+                className="spinner-border text-primary"
+                role="status"
+                style={{
+                  width: '5rem', // ปรับขนาดความกว้าง
+                  height: '5rem', // ปรับขนาดความสูง
+                }}
+              >
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
           ) : (
-            filteredEmployees.map((employee) => (
-              <div key={employee.id} className="card mb-4 shadow-sm border-0">
-                <div className="row g-0">
-                  <div className="col-md-2 d-flex align-items-center ms-3">
-                    {/* แสดงรูปภาพ */}
-                    <img
-                      src={employee.pic || "path_to_placeholder_image"} // ใช้รูป placeholder ถ้ายังไม่มีรูป
-                      alt="Employee"
-                      className="img-fluid rounded-circle border border-dark border-2"
-                      style={{
-                        objectFit: "cover",
-                        height: "130px",
-                        width: "140px",
-                      }}
-                    />
-                  </div>
+            <>
+              {filteredEmployees.length === 0 ? (
+                <div className='fs-3 text-center'>ไม่มีพนักงานที่มีการเตือน</div>
+              ) : (
+                filteredEmployees.map((employee) => (
+                  <div key={employee.id} className="card mb-4 shadow-sm border-0">
+                    <div className="row g-0">
+                      <div className="col-md-2 d-flex align-items-center ms-3">
+                        {/* แสดงรูปภาพ */}
+                        <img
+                          src={employee.pic || "path_to_placeholder_image"} // ใช้รูป placeholder ถ้ายังไม่มีรูป
+                          alt="Employee"
+                          className="img-fluid rounded-circle border border-dark border-2"
+                          style={{
+                            objectFit: "cover",
+                            height: "130px",
+                            width: "140px",
+                          }}
+                        />
+                      </div>
 
-                  <div className="col-md-6 d-flex align-items-center">
-                    <div className="card-body d-flex flex-column">
-                      <h5 className="card-title mb-2">ชื่อ-นามสกุล : {employee.name} {employee.lname}</h5>
-                      <p className="card-text mb-2">รหัสพนักงาน : {employee.id}</p>
-                      <p className="card-text mb-2">Email : {employee.email}</p>
-                      <p className="card-text mb-2">ตำแหน่ง : {employee.role_name}</p>
-                      <p className="card-text mb-2">แผนก : {employee.dpname}</p>
+                      <div className="col-md-6 d-flex align-items-center">
+                        <div className="card-body d-flex flex-column">
+                          <h5 className="card-title mb-2">ชื่อ-นามสกุล : {employee.name} {employee.lname}</h5>
+                          <p className="card-text mb-2">รหัสพนักงาน : {employee.id}</p>
+                          <p className="card-text mb-2">Email : {employee.email}</p>
+                          <p className="card-text mb-2">ตำแหน่ง : {employee.role_name}</p>
+                          <p className="card-text mb-2">แผนก : {employee.dpname}</p>
+                        </div>
+                      </div>
+
+                      <div className="col-md-3 d-flex flex-column justify-content-center align-items-end">
+                        <p className="mb-2" style={{ fontSize: "1.25rem", fontWeight: "bold" }}>
+                          เตือน : {employee.nlock}/3
+                        </p>
+                        <button
+                          className="btn btn-primary btn-lg"
+                          onClick={() => unlockEmployee(employee.id)}
+                          style={{ width: "300px", backgroundColor: "#49647C" }}
+                        >
+                          ปลดล็อคและรีเซ็ต
+                        </button>
+                      </div>
                     </div>
                   </div>
+                )))}
+                </>
+          )}
+            </div>
 
-                  <div className="col-md-3 d-flex flex-column justify-content-center align-items-end">
-                    <p className="mb-2" style={{ fontSize: "1.25rem", fontWeight: "bold" }}>
-                      เตือน : {employee.nlock}/3
-                    </p>
-                    <button
-                      className="btn btn-primary btn-lg"
-                      onClick={() => unlockEmployee(employee.id)}
-                      style={{ width: "300px", backgroundColor: "#49647C" }}
-                    >
-                      ปลดล็อคและรีเซ็ต
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )))}
         </div>
-
       </div>
-    </div>
-  );
+      );
 }
 
-export default LockListManagement;
+      export default LockListManagement;

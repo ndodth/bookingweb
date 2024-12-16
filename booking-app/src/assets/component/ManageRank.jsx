@@ -3,6 +3,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
 
 function PositionManagement() {
+  const [loading, setLoading] = useState(false); // สถานะการโหลด
+
   const [positions, setPositions] = useState([]);
   const [selectedPosition, setSelectedPosition] = useState(null);
   const [allPermission, setAllPermission] = useState([]);
@@ -22,6 +24,7 @@ function PositionManagement() {
 
   const fetchPositions = async () => {
     try {
+      setLoading(true)
       const token = localStorage.getItem("token");
 
       // Fetch positions
@@ -54,6 +57,8 @@ function PositionManagement() {
       setPositions(groupedPositions);
     } catch (error) {
       console.error("Error fetching positions:", error);
+    }finally{
+      setLoading(false)
     }
   };
 
@@ -214,6 +219,26 @@ function PositionManagement() {
           />
         </div>
       </div>
+      {loading ? ( // แสดงข้อความ Loading
+  <div
+    className="d-flex justify-content-center align-items-center"
+    style={{
+      height: '50vh', // ใช้เพื่อให้ความสูงเต็มจอ
+    }}
+  >
+    <div
+      className="spinner-border text-primary"
+      role="status"
+      style={{
+        width: '5rem', // ปรับขนาดความกว้าง
+        height: '5rem', // ปรับขนาดความสูง
+      }}
+    >
+      <span className="visually-hidden">Loading...</span>
+    </div>
+  </div>
+        ) : (
+        <>
       {filteredpositions.length > 0 ? (
         filteredpositions.map((position) => (
           <div key={position.id} className="card mb-4">
@@ -236,7 +261,8 @@ function PositionManagement() {
                     >ลบสิทธิ์
                     </button>
                     <br />
-                    {position.id != 2 && (
+
+                    {/* {position.id != 2 && (
                       <>
                         <button
                           className="btn btn-warning p-2 fs-4"
@@ -244,7 +270,9 @@ function PositionManagement() {
                         >ลบตำแหน่ง
                         </button>
                       </>
-                    )}
+                    )} */}
+                                        <div className='fs-5 mb-2'> ปิดปุ่มลบรายการไว้เนื่องจากเป็นไอดีที่ทุกคนเข้าดูได้</div>
+
                     {position.id == 2 && (
                       <>
                         <div className='fs-ภ text-Secondary'>*Staff ไม่สามารถลบได้</div>
@@ -275,6 +303,7 @@ function PositionManagement() {
       ) : (
         <p>ไม่พบข้อมูลตำแหน่ง</p>
       )}
+      </>)}
 
       {/* Modal for adding permissions */}
       {showModal && (

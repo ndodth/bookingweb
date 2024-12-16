@@ -6,6 +6,8 @@ import RoomImage from "../pic/room1.jpg";
 import { useNavigate } from "react-router-dom";
 
 function ReserveRoom() {
+  const [loading, setLoading] = useState(false); // สถานะการโหลด
+
   const [rooms, setRooms] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [focused, setFocused] = useState(false);
@@ -63,6 +65,8 @@ function ReserveRoom() {
 
     const fetchData = async () => {
       try {
+        setLoading(true)
+
         const [roomsData, bookingsData, addressData] = await Promise.all([
           fetchRooms(),
           fetchUserBookings(),
@@ -112,6 +116,8 @@ function ReserveRoom() {
         setRooms(formattedRooms);
       } catch (error) {
         console.error("Error fetching data:", error);
+      }finally{
+        setLoading(false)
       }
     };
     
@@ -273,7 +279,28 @@ function ReserveRoom() {
             flexDirection: "column",
             gap: "20px",
           }}
-        >{filteredRooms.length === 0 ? (
+          
+        >     {loading ? ( // แสดงข้อความ Loading
+          <div
+            className="d-flex justify-content-center align-items-center"
+            style={{
+              height: '50vh', // ใช้เพื่อให้ความสูงเต็มจอ
+            }}
+          >
+            <div
+              className="spinner-border text-primary"
+              role="status"
+              style={{
+                width: '5rem', // ปรับขนาดความกว้าง
+                height: '5rem', // ปรับขนาดความสูง
+              }}
+            >
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+                ) : (
+                <>
+          {filteredRooms.length === 0 ? (
           <>
           <div
             style={{
@@ -386,6 +413,7 @@ function ReserveRoom() {
           ))}
           </>
         )}
+        </>)}
         </div>
       </div>
     </div>

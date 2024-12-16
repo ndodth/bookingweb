@@ -59,8 +59,8 @@ const BookingCard = ({ booking, handleShowModal }) => {
           >
             <h5 className="card-title">ชื่อ: {booking.roomDetails.name}</h5>
             <p className="card-text mb-1">รหัส: {booking.room_id}</p>
-            <p className="card-text mb-1">จองเมื่อ: {booking.booking_date.split("+")[0].replace("T"," ")}</p>
-            <p className="card-text mb-1">เวลา: {booking.start_time.split("+")[0].replace("T", " ")} -  {booking.end_time.split("+")[0].replace("T", " ")} </p>
+            <p className="card-text mb-1">จองเมื่อ:{booking.booking_date.split("T")[0]}</p>
+            <p className="card-text mb-1">เวลา:  {booking.start_time.replace('T', ' ').replace('Z', '')} - {booking.end_time.split('T')[1].replace('Z', '')} น. </p>
           </div>
         </div>
 
@@ -87,6 +87,7 @@ const BookingCard = ({ booking, handleShowModal }) => {
 };
 
 const BookingHistory = () => {
+  const [loading, setLoading] = useState(false); // สถานะการโหลด
   const [bookings, setBookings] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [rooms, setRooms] = useState([]);
@@ -94,6 +95,7 @@ const BookingHistory = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true)
         const token = localStorage.getItem("token");
         if (!token) {
           throw new Error("No token found in localStorage");
@@ -109,26 +111,28 @@ const BookingHistory = () => {
         ]);
 
         const roomsData = roomsResponse.data;
-      
+
 
         setRooms(roomsData);
-        
-        if(bookingsResponse.data != null){
-        // สร้างการจองที่มีข้อมูลห้อง
-        const enrichedBookings = bookingsResponse.data.map((booking) => {
-          const roomDetails = roomsData.find(room => room.id === booking.room_id);
-          return { ...booking, roomDetails };
-        });
-      
-        // แทนที่ข้อมูลการจองในสถานะ
 
-        setBookings(enrichedBookings);
-      }
-      else{
-        setBookings(bookingsResponse.data)
-      }
+        if (bookingsResponse.data != null) {
+          // สร้างการจองที่มีข้อมูลห้อง
+          const enrichedBookings = bookingsResponse.data.map((booking) => {
+            const roomDetails = roomsData.find(room => room.id === booking.room_id);
+            return { ...booking, roomDetails };
+          });
+
+          // แทนที่ข้อมูลการจองในสถานะ
+
+          setBookings(enrichedBookings);
+        }
+        else {
+          setBookings(bookingsResponse.data)
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false)
       }
     };
 
@@ -173,16 +177,38 @@ const BookingHistory = () => {
       >
         ประวัติการจอง
       </h2>
-      {(bookings === null) ? (
-  <div className="text-center mt-5">
-    <h3>ไม่มีคำประวัติการจองห้อง</h3>
-  </div>
+      {loading ? ( // แสดงข้อความ Loading
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{
+            height: '50vh', // ใช้เพื่อให้ความสูงเต็มจอ
+          }}
+        >
+          <div
+            className="spinner-border text-primary"
+            role="status"
+            style={{
+              width: '5rem', // ปรับขนาดความกว้าง
+              height: '5rem', // ปรับขนาดความสูง
+            }}
+          >
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
       ) : (
         <>
-      {bookings.map((booking, index) => (
-        <BookingCard key={index} booking={booking} handleShowModal={handleShowModal} />
-      ))}
-</>)}
+          {(bookings === null) ? (
+            <div className="text-center mt-5">
+              <h3>ไม่มีคำประวัติการจองห้อง</h3>
+            </div>
+          ) : (
+            <>
+              {bookings.map((booking, index) => (
+                <BookingCard key={index} booking={booking} handleShowModal={handleShowModal} />
+              ))}
+
+            </>)}
+        </>)}
       <Modal show={showModal} onHide={handleCloseModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>ยืนยันการจอง</Modal.Title>
@@ -191,7 +217,7 @@ const BookingHistory = () => {
           ยืนยันการจองอีกครั้งหรือไม่?
         </Modal.Body>
         <Modal.Footer>
-        
+
           <Button variant="danger" onClick={handleCloseModal}>
             ยกเลิก
           </Button>

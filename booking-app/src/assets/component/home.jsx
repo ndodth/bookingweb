@@ -93,10 +93,12 @@ function Home(isLoggedIn) {
       setroomOptions(rooms);
       settypeOptions(types);
       setFilteredRooms(response.data)
-      setLoading(false);
+      
 
     } catch (error) {
       console.error('Error fetching rooms:', error);
+    }finally{
+      setLoading(false);
     }
   };
 

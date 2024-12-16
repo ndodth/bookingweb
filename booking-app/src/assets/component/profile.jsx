@@ -5,6 +5,8 @@ import "../css/bootstrap.min.css";
 import axios from "axios";
 
 function Profile() {
+  const [loading, setLoading] = useState(false); // สถานะการโหลด
+
   const [profile, setProfile] = useState({});
   const [editingField, setEditingField] = useState(null);
   const [editedProfile, setEditedProfile] = useState({});
@@ -15,6 +17,7 @@ function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
+        setLoading(true)
         const token = localStorage.getItem("token");
         const response = await axios.get("https://bookingweb-sxkw.onrender.com/Profile", {
           headers: { Authorization: `Bearer ${token}` },
@@ -24,6 +27,8 @@ function Profile() {
       } catch (err) {
         setError("เกิดข้อผิดพลาดในการดึงข้อมูลโปรไฟล์");
         console.error("Error fetching profile:", err);
+      }finally{
+        setLoading(false)
       }
     };
 
@@ -131,6 +136,26 @@ function Profile() {
         className="card shadow-sm p-4 mb-3"
         style={{ borderRadius: "10px", backgroundColor: "#F0F8FF" }}
       >
+             {loading ? ( // แสดงข้อความ Loading
+  <div
+    className="d-flex justify-content-center align-items-center"
+    style={{
+      height: '50vh', // ใช้เพื่อให้ความสูงเต็มจอ
+    }}
+  >
+    <div
+      className="spinner-border text-primary"
+      role="status"
+      style={{
+        width: '5rem', // ปรับขนาดความกว้าง
+        height: '5rem', // ปรับขนาดความสูง
+      }}
+    >
+      <span className="visually-hidden">Loading...</span>
+    </div>
+  </div>
+        ) : (
+        <>
         <div className="d-flex align-items-center">
           <div className="col-md-2 d-flex flex-column align-items-center ms-3">
             <img
@@ -140,7 +165,7 @@ function Profile() {
               style={{ objectFit: "cover", height: "130px", width: "140px" }}
             />
             {/* ปุ่มแก้ไขรูปภาพ */}
-            {profile.ID !== 4 ? (
+            {profile.ID !== 9 &&profile.ID !== 5 ? (
               <>
                 <button
                   className="btn btn-warning mt-2"
@@ -155,6 +180,7 @@ function Profile() {
             ) : (<div className="fs-4 text-secondary">     ปุ่มแก้ไขรูปภาพถูกปิดไว้สำหรับ ID นี้</div>)}
           </div>
           <div className="ms-4" style={{ width: "100%" }}>
+
             {["Name", "Lname", "Email", "Sex"].map((field) => (
               <p key={field} className="mb-2">
                 <span>
@@ -201,7 +227,7 @@ function Profile() {
                 ) : (
                   <div className="d-flex align-items-center">
                     <span className="me-auto">{profile[field] || "N/A"}</span>
-                    {field !== "Email" || profile.ID !== 10 ? (
+                    {field !== "Email"  ? (
                       <button
                         className="btn btn-primary ms-auto"
                         onClick={() => handleEditField(field)}
@@ -209,9 +235,7 @@ function Profile() {
                         แก้ไข
                       </button>
                     ) : (
-                      <span className="text-secondary ms-2">
-                        ขอปิดไว้สำหรับ Id Admin
-                      </span>
+                     <div/>
                     )}
                   </div>
                 )}
@@ -222,6 +246,8 @@ function Profile() {
             <p className="mb-2">แผนก: {profile.DeptName || "N/A"}</p>
           </div>
         </div>
+        </>)}
+
       </div>
 
       {error && <div className="alert alert-danger">{error}</div>}

@@ -3,6 +3,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
 
 function EmployeeManagement() {
+  const [loading, setLoading] = useState(false); 
+
   const [employees, setEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [newEmployee, setNewEmployee] = useState({
@@ -47,6 +49,7 @@ function EmployeeManagement() {
 
   const fetchRolesAndDepartments = async () => {
     try {
+      setLoading(true)
       const rolesResponse = await axios.get("https://bookingweb-sxkw.onrender.com/Roles", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -62,6 +65,8 @@ function EmployeeManagement() {
       setDepartments(departmentsResponse.data);
     } catch (error) {
       console.error("Error fetching roles or departments:", error);
+    }finally{
+      setLoading(false)
     }
   };
   const handleImageUpload = async (e, employeeId) => {
@@ -303,6 +308,26 @@ function EmployeeManagement() {
       {/* Employee List */}
       <div className="row">
         <div className="col-md-12">
+        {loading ? ( // แสดงข้อความ Loading
+  <div
+    className="d-flex justify-content-center align-items-center"
+    style={{
+      height: '50vh', // ใช้เพื่อให้ความสูงเต็มจอ
+    }}
+  >
+    <div
+      className="spinner-border text-primary"
+      role="status"
+      style={{
+        width: '5rem', // ปรับขนาดความกว้าง
+        height: '5rem', // ปรับขนาดความสูง
+      }}
+    >
+      <span className="visually-hidden">Loading...</span>
+    </div>
+  </div>
+        ) : (
+        <>
           {filteredEmployees.map((employee) => (
             <div key={employee.id} className="card mb-4 shadow-sm border-0">
               <div className="row g-0">
@@ -314,7 +339,7 @@ function EmployeeManagement() {
                     style={{ objectFit: "cover", height: "130px", width: "140px" }}
                   />
                   {/* ปุ่มแก้ไขรูปภาพ */}
-                  {employee.id ==1 && (
+                  {(employee.id !=4 && employee.id !=5) && (
                     <>
                       <button
                         className="btn btn-warning mt-2"
@@ -341,14 +366,9 @@ function EmployeeManagement() {
                   </div>
                 </div>
                 <div className="col-md-3 d-flex flex-column align-items-end">
-                  {employee.id != 1 ? (
-                    <div
-                      className="text-secondary fs-5">   เนื่องจากเว็บไซต์นี้เปิดให้ผู้ใช้ทุกคนเข้าถึงได้ ปุ่มแก้ไขและลบจึงถูกปิดใช้งาน ยกเว้นพนักงานตัวอย่างเพื่อแสดงการใช้งานในกรณีที่มีสิทธิ์แก้ไข
+                    
 
-                    </div>
-                  ) : (
-
-                    <>
+                   
                       <button
                         className="btn btn-secondary mb-2 mt-3"
                         style={{ width: '200px' }}
@@ -360,13 +380,17 @@ function EmployeeManagement() {
                       >
                         แก้ไขข้อมูล
                       </button>
-                      <button
+                      <div
+                      className="text-secondary fs-5">   เนื่องจากเว็บไซต์นี้เปิดให้ผู้ใช้ทุกคนเข้าถึงได้ ปุ่มลบจึงถูกปิดใช้งาน
+
+                    </div>
+                      {/* <button
                         className="btn btn-danger mb-2"
                         style={{ width: '200px' }}
                         onClick={() => deleteEmployee(employee.id)}
                       >
                         ลบพนักงาน
-                      </button>
+                      </button> */}
                       <button
                         className="btn btn-info mb-2"
                         style={{ width: '200px' }}
@@ -374,12 +398,12 @@ function EmployeeManagement() {
                       >
                         แสดงรายละเอียด
                       </button>
-                    </>
-                  )}
+                   
                 </div>
               </div>
             </div>
           ))}
+          </>)}
         </div>
       </div>
 

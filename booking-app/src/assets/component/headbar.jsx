@@ -8,6 +8,22 @@ import question from '../../../public/img/info/question.png';
 import home from '../../../public/img/info/home.png'
 import home2 from '../../../public/img/info/home2.png'
 import ReserveRoom from '../../../public/img/info/reserveroom.png'
+import history from '../../../public/img/info/history.png'
+import lock from '../../../public/img/info/lock.png'
+import ManageRoom from '../../../public/img/info/manageroom.png'
+import employee from '../../../public/img/info/employee.png'
+
+import rank from '../../../public/img/info/rank.png'
+import rank2 from '../../../public/img/info/rank2.png'
+
+
+import department from '../../../public/img/info/department.png'
+
+import profile from '../../../public/img/info/profile.png'
+
+import request from '../../../public/img/info/request.png'
+
+
 
 // import questionIcon from '../pic/question.png'; // ไอคอนสำหรับปุ่ม
 
@@ -28,14 +44,7 @@ function Header() {
       marginBottom: '10px',
     };
 
-    if (location.pathname === '/profile') {
-      return (
-        <div>
-          <img src={home} alt="Profile" style={imgStyle} />
-          <p>คุณกำลังอยู่ในหน้าโปรไฟล์</p>
-        </div>
-      );
-    } else if (location.pathname === '/login') {
+    if (location.pathname === '/login') {
       return (
         <div>
           <p className="fs-2  text-decoration-underline">ยินดีต้อนรับ นี่คือ miniprojectของมหาลัยที่ผมอยากจะลองทำต่อเพื่อนำมาใส่ในresume</p>
@@ -78,13 +87,97 @@ function Header() {
         <div>
          <h1>หน้า ประวัติการจองห้อง</h1>
 
-          <img src={home} alt="Profile" style={imgStyle} />
+          <img src={history} alt="history" style={imgStyle} />
           <p>หน้านี้จะแสดงประวัติการจองห้องทั้งหมดของ User</p>
         </div>
       );
-    } else if (location.pathname === '/LockListManagement') {
-      return 'คุณกำลังอยู่ในหน้าการจัดการล็อกรายการ';
-    } else {
+    } else if (location.pathname === '/ManageRoom') {
+      return (
+        <div>
+         <h1>หน้าจัดการห้องประชุม</h1>
+
+          <img src={ManageRoom} alt="ManageRoom" style={imgStyle} />
+          <p className='fs-5'>หน้านี้จะต้องมีตำแหน่งที่เข้าถึงได้ User</p>
+          <p className='fs-5'>User จะสามารถ เพิ่ม แก้ไข เปลี่ยนรูปภาพ และลบห้องได้</p>
+
+        </div>
+      );
+    }else if (location.pathname === '/LockListManagement') {
+      return (
+        <div>
+         <h1>หน้าจัดการล้อค</h1>
+
+          <img src={lock} alt="lock" style={imgStyle} />
+          <p className='fs-5'>หน้านี้จะแสดง Userที่เคยจองห้องแต่ไม่เข้าใช้ห้องในเวลาที่กำหนด (30 นาทีหลังเวลาเริ่ม)</p>
+          <p className='fs-5'>User ที่มี3แต้มหรือมากกว่านั้น จะไม่สามารถใช้งานระบบจองห้องได้</p>
+
+        </div>
+      );
+    }else if (location.pathname === '/ManageEmployee') {
+      return (
+        <div>
+         <h1>หน้าจัดการพนักงาน</h1>
+
+          <img src={employee} alt="employee" style={imgStyle} />
+          <p className='fs-2'>หน้านี้ไว้จัดการพนักงาน</p>
+          <p className='fs-5'>จะสามารถเพิ่ม แก้ไขข้อมูลพนักงานได้</p>
+
+        </div>
+      );
+    }else if (location.pathname === '/PositionManagement') {
+      return (
+        <div>
+         <h1>หน้าจัดการตำแหน่ง</h1>
+
+          <img src={rank} alt="rank" style={imgStyle} />
+          <p className='fs-2'>หน้านี้ไว้จัดการเข้าถึงของพนักงานแต่ละตำแหน่ง</p>
+          <img src={rank2} alt="rank2" style={{width: '60%'}}  />
+          <p className='fs-5 text-start'>-Lock Management เข้าถึงหน้าจัดการการล้อค</p>
+          <p className='fs-5 text-start'>-Report Management เข้าถึงหน้าการรายงาน</p>
+          <p className='fs-5 text-start'>-Room Management เข้าถึงหน้าจัดการห้องประชุม</p>
+          <p className='fs-5 text-start'>-Role Management เข้าถึงหน้าจัดกาตำแหน่ง</p>
+          <p className='fs-5 text-start'>-Department Management เข้าถึงหน้าจัดการแผนก</p>
+          <p className='fs-5 text-start'>-Employee Management เข้าถึงหน้าจัดการพนักงาน</p>
+
+
+
+
+        </div>
+      );
+    }else if (location.pathname === '/DepartmentManagement') {
+      return (
+        <div>
+         <h1>หน้าจัดการแผนก</h1>
+
+          <img src={department} alt="department" style={imgStyle} />
+          <p className='fs-2'>หน้านี้ไว้จัดการแผนก สามารถเพิ่มและลบแผนกได้
+          </p>
+
+        </div>
+      );
+    }else if (location.pathname === '/profile') {
+      return (
+        <div>
+         <h1>หน้าProfile</h1>
+
+          <img src={profile} alt="profile" style={imgStyle} />
+          <p className='fs-4 text-start'>หน้านี้ User จะสามารถเปลี่ยนชื่อ-นามสกุล เพศ และ รูปภาพได้
+          </p>
+
+        </div>
+      );
+    }else if (location.pathname === '/RoomRequestManagement') {
+      return (
+        <div>
+         <h1>หน้าอนุมัติใช้ห้อง vip</h1>
+
+          <img src={request} alt="request" style={imgStyle} />
+          <p className='fs-4 text-start'>หน้านี้จะแสดงถึงคำร้องขอการใช้ห้อง Vip และเหตุผลสามารถอนุมัติหรือยกเลิกได้
+          </p>
+
+        </div>
+      );
+    }else {
       return 'Error';
     }
   };

@@ -4,6 +4,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Modal, Button, Form } from "react-bootstrap";
 
 function RoomRequestManagement() {
+  const [loading, setLoading] = useState(false); // สถานะการโหลด
+
   const [roomRequests, setRoomRequests] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -13,6 +15,7 @@ function RoomRequestManagement() {
 
   const fetchRoomRequests = async () => {
     try {
+      setLoading(true)
       const token = localStorage.getItem('token');
       const response = await axios.get('https://bookingweb-sxkw.onrender.com/request',{
       headers: {
@@ -25,6 +28,8 @@ function RoomRequestManagement() {
       setRoomRequests(response.data);
     } catch (error) {
       console.error("Error fetching room requests:", error);
+    }finally{
+      setLoading(false)
     }
   };
   useEffect(() => {
@@ -90,6 +95,26 @@ function RoomRequestManagement() {
       </div>
 
       {/* Request List */}
+      {loading ? ( // แสดงข้อความ Loading
+  <div
+    className="d-flex justify-content-center align-items-center"
+    style={{
+      height: '50vh', // ใช้เพื่อให้ความสูงเต็มจอ
+    }}
+  >
+    <div
+      className="spinner-border text-primary"
+      role="status"
+      style={{
+        width: '5rem', // ปรับขนาดความกว้าง
+        height: '5rem', // ปรับขนาดความสูง
+      }}
+    >
+      <span className="visually-hidden">Loading...</span>
+    </div>
+  </div>
+        ) : (
+        <>
       {(roomRequests === null) ? (
   <div className="text-center mt-5">
     <h3>ไม่มีคำขอใช้งานห้อง</h3>
@@ -148,6 +173,7 @@ function RoomRequestManagement() {
           </div>
         </div>
             )}
+            </>)}
 
       {/* Modal ยืนยันการยอมรับคำร้อง */}
       <Modal show={showModal} onHide={() => setShowModal(false)} centered>
