@@ -910,55 +910,41 @@ func getHistoryBooking(email string) ([]Booking, error) {
 	return bookings, err
 }
 
-func getReportRoomUsed(selectedRoom string, selectedDate string) ([]Booking, error) {
-	// Base SQL query
+func getRoomUsageByMonth(selectedDate string) ([]RoomUsage, error) {
 	query := `
-	SELECT room_id AS id, 
-	       COUNT(id) AS usage_count
-	FROM booking
-	WHERE TO_CHAR(start_time, 'YYYY-MM') = $1
-	GROUP BY room_id
-	ORDER BY room_id
-`
+		SELECT room_id AS id, 
+		       COUNT(id) AS usage_count
+		FROM booking
+		WHERE TO_CHAR(start_time, 'YYYY-MM') = $1
+		GROUP BY room_id
+		ORDER BY room_id
+	`
 
-	var conditions []string
-	var args []interface{}
-
-	if selectedRoom != "" {
-		conditions = append(conditions, "room_id = $1")
-		args = append(args, selectedRoom)
-	}
-	fmt.Println("selectedDate")
-	if selectedDate != "" {
-		date := formatTime(selectedDate)
-		conditions = append(conditions, "DATE(start_time) = TO_DATE($2, 'YYYY-MM-DD')")
-		args = append(args, date)
-	}
-
-	if len(conditions) > 0 {
-		query += " WHERE " + strings.Join(conditions, " AND ")
-	}
-
-	// Execute the query
-	rows, err := db.Query(query, args...)
+	rows, err := db.Query(query, selectedDate)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var bookings []Booking
+	var usages []RoomUsage
 	for rows.Next() {
-		var booking Booking
-		err := rows.Scan(&booking.ID, &booking.BookingDate, &booking.StartTime, &booking.EndTime, &booking.RequestMessage, &booking.ApprovedID, &booking.StatusID, &booking.RoomID, &booking.EmpID)
-		if err != nil {
+		var usage RoomUsage
+		if err := rows.Scan(&usage.ID, &usage.UsageCount); err != nil {
 			return nil, err
 		}
-		bookings = append(bookings, booking)
+		usages = append(usages, usage)
 	}
+
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
-	return bookings, nil
+	return usages, nil
+}
+
+// RoomUsage struct สำหรับเก็บข้อมูลผลลัพธ์
+type RoomUsage struct {
+	ID         int
+	UsageCount int
 }
 
 func generateQR(id int) error {
