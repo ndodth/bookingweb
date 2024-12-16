@@ -919,7 +919,7 @@ func getHistoryBooking(email string) ([]Booking, error) {
 
 func getReportRoomUsed(selectedRoom string, selectedDate string) ([]Booking, error) {
 	// Base SQL query
-	query := "SELECT id, booking_date, start_time, end_time, request_message, NVL(approved_id, 0), status_id, room_id, emp_id FROM booking"
+	query := "SELECT id, booking_date, start_time, end_time, request_message, COALESCE(approved_id, 0), status_id, room_id, emp_id FROM booking"
 	var conditions []string
 	var args []interface{}
 
