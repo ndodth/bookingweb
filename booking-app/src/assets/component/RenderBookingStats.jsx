@@ -43,14 +43,14 @@ const RenderBookingStats = () => {
 						Authorization: `Bearer ${token}`,
 					}
 				});
-
-                const data = response.data || { used: 0, unused: 0 }; // กำหนดค่าเริ่มต้น
+                const data = response.data; // กำหนดค่าเริ่มต้น
+				console.log(data)
 				setBookingStatsData({
 					labels: ['การจองสำเร็จ', 'การจองล้มเหลว'],
 					datasets: [
 						{
 							label: 'จำนวนการจองห้อง',
-                            data: [data.used , data.unused ],
+							data: [data.completed, data.canceled],
 							backgroundColor: ['#88E39E', '#FF7D7D'],
 						},
 					],

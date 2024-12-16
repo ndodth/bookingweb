@@ -772,30 +772,23 @@ func cancelRoom(id int, cancel Cancel) error {
 	return nil
 }
 
-func getReportUsedCanceled() ([]Booking, error) {
-	query := `SELECT id, status_id FROM booking
-			WHERE status_id=(SELECT id FROM booking_status WHERE name=$1)
-			OR status_id=(SELECT id FROM booking_status WHERE name=$2)
+func getReportUsedCanceled() (map[string]int, error) {
+	query := `
+		SELECT 
+			(SELECT COUNT(*) FROM booking WHERE status_id = (SELECT id FROM booking_status WHERE name = $1)) AS completed_count,
+			(SELECT COUNT(*) FROM booking WHERE status_id = (SELECT id FROM booking_status WHERE name = $2)) AS canceled_count
 	`
-	var bookingList []Booking
-	rows, err := db.Query(query, "Completed", "Canceled")
+	var completedCount, canceledCount int
+	err := db.QueryRow(query, "Completed", "Canceled").Scan(&completedCount, &canceledCount)
 	if err != nil {
 		return nil, err
 	}
-	for rows.Next() {
-		var booking Booking
-		err = rows.Scan(&booking.ID, &booking.StatusID)
-		fmt.Println("test", booking.StatusID)
 
-		if err != nil {
-			return nil, err
-		}
-		bookingList = append(bookingList, booking)
+	result := map[string]int{
+		"completed": completedCount,
+		"canceled":  canceledCount,
 	}
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-	return bookingList, nil
+	return result, nil
 }
 
 func getReportLockEmployee(dept_id int) ([]EmployeeLocked, error) {
