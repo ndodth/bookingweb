@@ -910,40 +910,55 @@ func getHistoryBooking(email string) ([]Booking, error) {
 	return bookings, err
 }
 
-type RoomUsage struct {
-	RoomID     int    `json:"room_id"`
-	RoomName   string `json:"room_name"`
-	UsageCount int    `json:"usage_count"`
-}
-
-func getReportRoomUsageByMonth(month string) ([]RoomUsage, error) {
+func getReportRoomUsed(selectedRoom string, selectedDate string) ([]Booking, error) {
+	// Base SQL query
 	query := `
-		SELECT r.id, r.name, COUNT(b.id) AS usage_count
-		FROM rooms r
-		LEFT JOIN booking b ON r.id = b.room_id
-		AND TO_CHAR(b.start_time, 'YYYY-MM') = $1
-		GROUP BY r.id, r.name
-		ORDER BY r.id
-	`
-	rows, err := db.Query(query, month)
+	SELECT room_id AS id, 
+	       COUNT(id) AS usage_count
+	FROM booking
+	WHERE TO_CHAR(start_time, 'YYYY-MM') = $1
+	GROUP BY room_id
+	ORDER BY room_id
+`
+
+	var conditions []string
+	var args []interface{}
+
+	if selectedRoom != "" {
+		conditions = append(conditions, "room_id = $1")
+		args = append(args, selectedRoom)
+	}
+	fmt.Println("selectedDate")
+	if selectedDate != "" {
+		date := formatTime(selectedDate)
+		conditions = append(conditions, "DATE(start_time) = TO_DATE($2, 'YYYY-MM-DD')")
+		args = append(args, date)
+	}
+
+	if len(conditions) > 0 {
+		query += " WHERE " + strings.Join(conditions, " AND ")
+	}
+
+	// Execute the query
+	rows, err := db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var roomUsageList []RoomUsage
+	var bookings []Booking
 	for rows.Next() {
-		var roomUsage RoomUsage
-		err := rows.Scan(&roomUsage.RoomID, &roomUsage.RoomName, &roomUsage.UsageCount)
+		var booking Booking
+		err := rows.Scan(&booking.ID, &booking.BookingDate, &booking.StartTime, &booking.EndTime, &booking.RequestMessage, &booking.ApprovedID, &booking.StatusID, &booking.RoomID, &booking.EmpID)
 		if err != nil {
 			return nil, err
 		}
-		roomUsageList = append(roomUsageList, roomUsage)
+		bookings = append(bookings, booking)
 	}
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
-	return roomUsageList, nil
+	return bookings, nil
 }
 
 func generateQR(id int) error {

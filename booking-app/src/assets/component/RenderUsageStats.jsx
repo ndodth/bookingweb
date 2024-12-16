@@ -21,7 +21,7 @@ const RenderRoomUsageStats = () => {
 		try {
 			const token = localStorage.getItem('token');
 			const response = await axios.get(
-				`https://bookingweb-sxkw.onrender.com/reports/roomUsageByMonth?month=${month}`,
+				`https://bookingweb-sxkw.onrender.com/reports/roomUsed?month=${month}`,
 				{
 					headers: {
 						Authorization: `Bearer ${token}`,
