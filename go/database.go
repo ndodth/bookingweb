@@ -912,12 +912,15 @@ func getHistoryBooking(email string) ([]Booking, error) {
 
 func getRoomUsageByMonth(selectedDate string) ([]RoomUsage, error) {
 	query := `
-		SELECT room_id AS id, 
-		       COUNT(id) AS usage_count
-		FROM booking
-		WHERE TO_CHAR(start_time, 'YYYY-MM') = $1
-		GROUP BY room_id
-		ORDER BY room_id
+		SELECT r.id, 
+       r.name, 
+       COUNT(b.id) AS usage_count
+FROM rooms r
+LEFT JOIN booking b ON r.id = b.room_id
+AND TO_CHAR(b.start_time, 'YYYY-MM') = $1
+GROUP BY r.id, r.name
+ORDER BY r.id;
+
 	`
 
 	rows, err := db.Query(query, selectedDate)
