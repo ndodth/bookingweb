@@ -62,7 +62,7 @@ const RegisterForm = () => {
 
     try {
       setLoading(true)
-      console.log("loading",loading)
+      console.log("loading", loading)
       const response = await fetch('https://bookingweb-sxkw.onrender.com/register', {
         method: 'POST',
         headers: {
@@ -74,15 +74,18 @@ const RegisterForm = () => {
       if (response.ok) {
         const data = await response.json();
         approve();
-        setShowConfirmationMessage(true); // แสดงข้อความยืนยันการสมัครเมื่อการลงทะเบียนสำเร็จ
+        setShowConfirmationMessage(true); 
       } else {
         const text = await response.text();
-        if (text === 'Conflict') {
+
+        const errorResponse = JSON.parse(text); 
+        if (errorResponse.error === "email already exists in the database") {
           setErrorMessage('Email นี้มีการลงทะเบียนแล้ว');
         } else {
           setErrorMessage('Failed to register');
         }
         console.log('Error response from Back-end:', text);
+        setShowModal(false)
       }
     } catch (error) {
       setErrorMessage('เกิดข้อผิดพลาดในการเชื่อมต่อ');
@@ -217,7 +220,7 @@ const RegisterForm = () => {
             <Modal.Title className="w-100 text-center">ยืนยันการยอมรับคำร้อง</Modal.Title>
           </Modal.Header>
           <Modal.Body className="container d-flex justify-content-center align-items-center" style={{ height: '150px' }}>
-          {loading ? (
+            {loading ? (
               <div className="spinner-border text-light" role="status">
                 <span className="visually-hidden">Loading...</span>
               </div>
