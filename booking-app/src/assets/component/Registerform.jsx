@@ -4,6 +4,8 @@ import { Modal, Button } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
 
 const RegisterForm = () => {
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -20,7 +22,7 @@ const RegisterForm = () => {
   const validateForm = () => {
     // Regex สำหรับตรวจสอบรูปแบบอีเมล
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  
+
     if (!firstName || !lastName || !email || !password || !confirmPassword || !department || !gender) {
       setErrorMessage('กรุณากรอกข้อมูลให้ครบทุกช่อง');
       return false;
@@ -59,6 +61,8 @@ const RegisterForm = () => {
     };
 
     try {
+      setLoading(true)
+      console.log("loading",loading)
       const response = await fetch('https://bookingweb-sxkw.onrender.com/register', {
         method: 'POST',
         headers: {
@@ -83,6 +87,8 @@ const RegisterForm = () => {
     } catch (error) {
       setErrorMessage('เกิดข้อผิดพลาดในการเชื่อมต่อ');
       console.error(error);
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -98,10 +104,10 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className="container-fluid min-vh-100 d-flex align-items-center justify-content-center" 
-         style={{ background: 'linear-gradient(to right, #d9f1ff, #ffffff)' }}>
-      <div className="card shadow-lg border-0 rounded-5 p-5" 
-           style={{ maxWidth: '400px', backgroundColor: '#ffffff', borderRadius: '20px', padding: '40px', boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)' }}>
+    <div className="container-fluid min-vh-100 d-flex align-items-center justify-content-center"
+      style={{ background: 'linear-gradient(to right, #d9f1ff, #ffffff)' }}>
+      <div className="card shadow-lg border-0 rounded-5 p-5"
+        style={{ maxWidth: '400px', backgroundColor: '#ffffff', borderRadius: '20px', padding: '40px', boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)' }}>
         <h1 className="text-center fw-bold mb-4" style={{ fontSize: '2rem' }}>Register</h1>
 
         {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
@@ -115,66 +121,66 @@ const RegisterForm = () => {
         <form>
           <div className="row mb-3">
             <div className="col">
-              <input type="text" 
-                     className="form-control border-0 shadow-sm rounded-3" 
-                     placeholder="ชื่อ" 
-                     value={firstName}
-                     onChange={(e) => setFirstName(e.target.value)}
-                     style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#d0e7f9' }} />
+              <input type="text"
+                className="form-control border-0 shadow-sm rounded-3"
+                placeholder="ชื่อ"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#d0e7f9' }} />
             </div>
             <div className="col">
-              <input type="text" 
-                     className="form-control border-0 shadow-sm rounded-3" 
-                     placeholder="นามสกุล" 
-                     value={lastName}
-                     onChange={(e) => setLastName(e.target.value)}
-                     style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#d0e7f9' }} />
+              <input type="text"
+                className="form-control border-0 shadow-sm rounded-3"
+                placeholder="นามสกุล"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#d0e7f9' }} />
             </div>
           </div>
 
           <div className="mb-3">
-            <input type="email" 
-                   className="form-control border-0 shadow-sm rounded-3" 
-                   placeholder="Email" 
-                   value={email}
-                   onChange={(e) => setEmail(e.target.value)}
-                   style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#d0e7f9' }} />
+            <input type="email"
+              className="form-control border-0 shadow-sm rounded-3"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#d0e7f9' }} />
           </div>
 
           <div className="mb-3">
-            <input type={showPassword ? 'text' : 'password'} 
-                   className="form-control border-0 shadow-sm rounded-3" 
-                   placeholder="รหัสผ่าน" 
-                   value={password}
-                   onChange={(e) => setPassword(e.target.value)}
-                   style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#d0e7f9' }} />
+            <input type={showPassword ? 'text' : 'password'}
+              className="form-control border-0 shadow-sm rounded-3"
+              placeholder="รหัสผ่าน"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#d0e7f9' }} />
           </div>
 
           <div className="mb-3">
-            <input type={showPassword ? 'text' : 'password'} 
-                   className="form-control border-0 shadow-sm rounded-3" 
-                   placeholder="ยืนยันรหัสผ่าน" 
-                   value={confirmPassword}
-                   onChange={(e) => setConfirmPassword(e.target.value)}
-                   style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#d0e7f9' }} />
+            <input type={showPassword ? 'text' : 'password'}
+              className="form-control border-0 shadow-sm rounded-3"
+              placeholder="ยืนยันรหัสผ่าน"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#d0e7f9' }} />
           </div>
 
           <div className="form-check form-switch mb-3">
-            <input className="form-check-input" 
-                   type="checkbox" 
-                   id="showPasswordSwitch" 
-                   checked={showPassword} 
-                   onChange={() => setShowPassword(!showPassword)} />
+            <input className="form-check-input"
+              type="checkbox"
+              id="showPasswordSwitch"
+              checked={showPassword}
+              onChange={() => setShowPassword(!showPassword)} />
             <label className="form-check-label" htmlFor="showPasswordSwitch">
               แสดงรหัสผ่าน
             </label>
           </div>
 
           <div className="mb-4">
-            <select className="form-select border-0 shadow-sm rounded-3" 
-                    value={department}
-                    onChange={(e) => setDepartment(e.target.value)}
-                    style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#d0e7f9' }}>
+            <select className="form-select border-0 shadow-sm rounded-3"
+              value={department}
+              onChange={(e) => setDepartment(e.target.value)}
+              style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#d0e7f9' }}>
               <option value="">แผนก</option>
               <option value="1">IT</option>
               <option value="2">HR</option>
@@ -183,10 +189,10 @@ const RegisterForm = () => {
           </div>
 
           <div className="mb-4">
-            <select className="form-select border-0 shadow-sm rounded-3" 
-                    value={gender}
-                    onChange={(e) => setGender(e.target.value)}
-                    style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#d0e7f9' }}>
+            <select className="form-select border-0 shadow-sm rounded-3"
+              value={gender}
+              onChange={(e) => setGender(e.target.value)}
+              style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#d0e7f9' }}>
               <option value="">เพศ</option>
               <option value="Male">ชาย</option>
               <option value="Female">หญิง</option>
@@ -195,10 +201,10 @@ const RegisterForm = () => {
           </div>
 
           <div className="d-grid">
-            <button type="submit" 
-                    className="btn btn-primary rounded-pill shadow-sm" 
-                    onClick={handleOpenModal} 
-                    style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#4A76A8' }}>
+            <button type="submit"
+              className="btn btn-primary rounded-pill shadow-sm"
+              onClick={handleOpenModal}
+              style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#4A76A8' }}>
               Confirm
             </button>
           </div>
@@ -210,15 +216,24 @@ const RegisterForm = () => {
           <Modal.Header closeButton>
             <Modal.Title className="w-100 text-center">ยืนยันการยอมรับคำร้อง</Modal.Title>
           </Modal.Header>
-          <Modal.Body className="container">
-            <div className="d-flex justify-content-center">
-              <Button variant="primary" className="bg-success mx-5 p-2 fs-2" onClick={handleRegister}>
-                ยืนยัน
-              </Button>
-              <Button variant="secondary" className="bg-danger mx-5 p-2 fs-2" onClick={() => setShowModal(false)}>
-                ยกเลิก
-              </Button>
-            </div>
+          <Modal.Body className="container d-flex justify-content-center align-items-center" style={{ height: '150px' }}>
+          {loading ? (
+              <div className="spinner-border text-light" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            ) : (
+              <>
+
+                <div className="d-flex justify-content-center">
+                  <Button variant="primary" className="bg-success mx-5 p-2 fs-2" onClick={handleRegister}>
+                    ยืนยัน
+                  </Button>
+                  <Button variant="secondary" className="bg-danger mx-5 p-2 fs-2" onClick={() => setShowModal(false)}>
+                    ยกเลิก
+                  </Button>
+                </div>
+              </>
+            )}
           </Modal.Body>
         </div>
       </Modal>

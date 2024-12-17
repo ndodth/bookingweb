@@ -36,7 +36,10 @@ func createEmployeeInDB(employee *Employee) error {
 	var id int
 	query := `SELECT email FROM employee WHERE email=$1`
 	err = db.QueryRow(query, employee.Email).Scan(&email)
-	if err != nil && err != sql.ErrNoRows {
+	if err == nil {
+		return fmt.Errorf("email already exists in the database")
+	} else if err != sql.ErrNoRows {
+		// เกิดข้อผิดพลาดอื่น ๆ ระหว่างการ query
 		return fmt.Errorf("database query error: %v", err)
 	}
 

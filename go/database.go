@@ -1100,7 +1100,6 @@ func checkBookingStatus(bookingID int, wg *sync.WaitGroup) {
 			return
 		}
 	default:
-		fmt.Printf("Booking ID %d has an unsupported status: %s. Skipping processing.\n", bookingID, statusName)
 		return
 	}
 
