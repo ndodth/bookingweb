@@ -165,7 +165,7 @@ function Profile() {
               style={{ objectFit: "cover", height: "130px", width: "140px" }}
             />
             {/* ปุ่มแก้ไขรูปภาพ */}
-            {profile.ID !== 9 &&profile.ID !== 5 ? (
+            {profile.ID !== 4 &&profile.ID !== 5 ? (
               <>
                 <button
                   className="btn btn-warning mt-2"

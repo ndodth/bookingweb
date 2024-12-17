@@ -7,6 +7,7 @@ const RegisterForm = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showConfirmationMessage, setShowConfirmationMessage] = useState(false); // state สำหรับแสดงข้อความยืนยันอีเมล
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -69,6 +70,7 @@ const RegisterForm = () => {
       if (response.ok) {
         const data = await response.json();
         approve();
+        setShowConfirmationMessage(true); // แสดงข้อความยืนยันการสมัครเมื่อการลงทะเบียนสำเร็จ
       } else {
         const text = await response.text();
         if (text === 'Conflict') {
@@ -85,6 +87,8 @@ const RegisterForm = () => {
   };
 
   const approve = () => {
+    alert('กรุณายืนยันอีเมลของคุณเพื่อทำการเข้าสู่ระบบ');
+
     navigate('/login', {
       state: {
         email: email,
@@ -101,6 +105,12 @@ const RegisterForm = () => {
         <h1 className="text-center fw-bold mb-4" style={{ fontSize: '2rem' }}>Register</h1>
 
         {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
+
+        {showConfirmationMessage && (
+          <div className="alert alert-info">
+            กรุณายืนยันอีเมลของคุณเพื่อทำการเข้าสู่ระบบ
+          </div>
+        )}
 
         <form>
           <div className="row mb-3">
@@ -216,7 +226,4 @@ const RegisterForm = () => {
   );
 };
 
-
-
-  export default RegisterForm;
-  
+export default RegisterForm;

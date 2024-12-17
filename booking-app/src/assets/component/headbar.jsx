@@ -23,6 +23,8 @@ import profile from '../../../public/img/info/profile.png'
 
 import request from '../../../public/img/info/request.png'
 
+import chart from '../../../public/img/info/chart.png'
+
 
 
 // import questionIcon from '../pic/question.png'; // ไอคอนสำหรับปุ่ม
@@ -173,6 +175,17 @@ function Header() {
 
           <img src={request} alt="request" style={imgStyle} />
           <p className='fs-4 text-start'>หน้านี้จะแสดงถึงคำร้องขอการใช้ห้อง Vip และเหตุผลสามารถอนุมัติหรือยกเลิกได้
+          </p>
+
+        </div>
+      );
+    }else if (location.pathname === '/ReportMenu') {
+      return (
+        <div>
+         <h1>หน้าReport</h1>
+
+          <img src={chart} alt="chart" style={imgStyle} />
+          <p className='fs-4 text-start'>หน้านี้จะแสดงรายงานการใช้ห้องของแต่ละเดือน
           </p>
 
         </div>

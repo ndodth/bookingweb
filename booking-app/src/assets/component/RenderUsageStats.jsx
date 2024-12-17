@@ -30,16 +30,21 @@ const RenderRoomUsageStats = () => {
 			);
 			console.log(response.data)
 			const data = response.data;
-			const labels = data.map((entry) => entry.room_name);
-			const usageData = data.map((entry) => entry.usage_count);
+			const labels = data.map((entry) => entry.Name);
+			const usageData = data.map((entry) => entry.UsageCount);
+			console.log(usageData)
 
+			const colors = data.map((_, index) => {
+				const color = `hsl(${(index * 90) % 360}, 80%, 50%)`; // เพิ่มความเข้มของสีและปรับความสว่าง
+				return color;
+			  });
 			setUsageStatsData({
 				labels: labels,
 				datasets: [
 					{
 						label: 'จำนวนครั้งที่ใช้ (ครั้ง)',
 						data: usageData,
-						backgroundColor: 'rgba(54, 162, 235, 0.6)',
+						backgroundColor: colors, // ใช้สีที่ได้จากการสร้าง
 					},
 				],
 			});

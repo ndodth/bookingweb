@@ -1044,9 +1044,10 @@ func generateQR(id int) error {
 
 func checkBookingStatus(bookingID int, wg *sync.WaitGroup) {
 	defer wg.Done()
+
 	tx, err := db.Begin()
 	if err != nil {
-		fmt.Println("failed to begin transaction: %w", err)
+		fmt.Printf("Failed to begin transaction: %v\n", err)
 		return
 	}
 
@@ -1057,36 +1058,59 @@ func checkBookingStatus(bookingID int, wg *sync.WaitGroup) {
 	}()
 
 	var employeeID int
-	var statusID int
+	var statusName string
 
-	query := `SELECT emp_id, status_id 
+	// ดึง emp_id และสถานะของ booking
+	query := `SELECT emp_id, (SELECT name FROM booking_status WHERE id = status_id) 
               FROM booking 
-              WHERE id = $1 
-              AND status_id = (SELECT id FROM booking_status WHERE name = 'Waiting')`
-	err = tx.QueryRow(query, bookingID).Scan(&employeeID, &statusID)
+              WHERE id = $1`
+	err = tx.QueryRow(query, bookingID).Scan(&employeeID, &statusName)
 	if err != nil {
+		fmt.Printf("Error fetching booking: %v\n", err)
 		return
 	}
 
-	var nlock int
-	err = tx.QueryRow("SELECT nlock FROM employee WHERE id = $1", employeeID).Scan(&nlock)
-	if err != nil {
+	// ตรวจสอบสถานะ และแยกการทำงาน
+	switch statusName {
+	case "Pending":
+		fmt.Printf("Booking ID %d is in 'Pending' status. Skipping employee updates.\n", bookingID)
+		_, err = tx.Exec("UPDATE booking SET status_id = (SELECT id FROM booking_status WHERE name = 'Expired') WHERE id = $1", bookingID)
+		if err != nil {
+			fmt.Printf("Error updating booking status for ID %d: %v\n", bookingID, err)
+			return
+		}
+	case "Waiting":
+		fmt.Printf("Booking ID %d is in 'Waiting' status. Processing employee updates.\n", bookingID)
+		var nlock int
+		err = tx.QueryRow("SELECT nlock FROM employee WHERE id = $1", employeeID).Scan(&nlock)
+		if err != nil {
+			fmt.Printf("Error fetching nlock for employee %d: %v\n", employeeID, err)
+			return
+		}
+
+		_, err = tx.Exec("UPDATE employee SET nlock = $1 WHERE id = $2", nlock+1, employeeID)
+		if err != nil {
+			fmt.Printf("Error updating nlock for employee %d: %v\n", employeeID, err)
+			return
+		}
+
+		_, err = tx.Exec("UPDATE booking SET status_id = (SELECT id FROM booking_status WHERE name = 'Expired') WHERE id = $1", bookingID)
+		if err != nil {
+			fmt.Printf("Error updating booking status for ID %d: %v\n", bookingID, err)
+			return
+		}
+	default:
+		fmt.Printf("Booking ID %d has an unsupported status: %s. Skipping processing.\n", bookingID, statusName)
 		return
 	}
 
-	_, err = tx.Exec("UPDATE employee SET nlock = $1 WHERE id = $2", nlock+1, employeeID)
-	if err != nil {
-		return
-	}
-
-	_, err = tx.Exec("UPDATE booking SET status_id = (SELECT id FROM booking_status WHERE name = 'Expired') WHERE id = $1", bookingID)
-	if err != nil {
-		return
-	}
-
+	// Commit transaction
 	if err = tx.Commit(); err != nil {
+		fmt.Printf("Error committing transaction: %v\n", err)
 		return
 	}
+
+	fmt.Printf("Booking ID %d processed successfully.\n", bookingID)
 }
 
 func checkCompleteStatus(bookingID int, wg *sync.WaitGroup) {

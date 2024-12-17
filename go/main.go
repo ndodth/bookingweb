@@ -2,7 +2,9 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -168,6 +170,54 @@ func main() {
 
 // userContextKey is the key used to store user data in the Fiber context
 const userContextKey = "user"
+
+func getEmployeeDetailsByStatus(status string) ([]map[string]interface{}, error) {
+	query := `
+		SELECT e.id, e.name, COUNT(b.id) AS booking_count
+		FROM booking b
+		JOIN employee e ON b.emp_id = e.id
+		WHERE b.status_id = (SELECT id FROM booking_status WHERE name = $1)
+		GROUP BY e.id, e.name
+	`
+	rows, err := db.Query(query, status)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var employees []map[string]interface{}
+	for rows.Next() {
+		var id int
+		var name string
+		var count int
+		if err := rows.Scan(&id, &name, &count); err != nil {
+			return nil, err
+		}
+		employees = append(employees, map[string]interface{}{
+			"id":    id,
+			"name":  name,
+			"count": count,
+		})
+	}
+	return employees, nil
+}
+
+// HTTP Handler
+func EmployeeDetailsHandler(w http.ResponseWriter, r *http.Request) {
+	status := r.URL.Query().Get("status")
+	if status == "" {
+		http.Error(w, "status is required", http.StatusBadRequest)
+		return
+	}
+
+	employees, err := getEmployeeDetailsByStatus(status)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(employees)
+}
 
 // extractUserFromJWT is a middleware that extracts user data from the JWT token
 func extractDataFromJWT(c *fiber.Ctx) error {
