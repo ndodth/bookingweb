@@ -87,8 +87,13 @@ function LoginForm({ onLogin, onAdmin }) {
     > 
       <div className="text-center m-5" style={{ width: '50vw', padding: '10vh 10vw', backgroundColor: 'white', borderRadius: '10px' }}>
       <div className='fs-2'>Made by Teeranat Srikaew</div>
+ 
+
+
+
 
         <h1 className='display-4 fw-bold mb-5'>Login</h1>
+        
         <p>นี่เป็น miniprojectของมหาลัย ที่นำมาทำต่อเพื่อใส่เป็นประวัติ</p>
         <p>ในทุกๆหน้าจะมีคำอธิบายอยู่ที่ปุ่ม   <img src={question}  style={{ width: '50px',height:'50px',padding:'10px',borderRadius: '50%',    backgroundColor:'transparent',borderColor:'black',border:"1px" // สีฟ้า 
  }} alt="Logo" /> มุมขวาบน

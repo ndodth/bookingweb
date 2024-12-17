@@ -50,9 +50,12 @@ function Header() {
       return (
         <div>
           <p className="fs-2  text-decoration-underline">ยินดีต้อนรับ นี่คือ miniprojectของมหาลัยที่ผมอยากจะลองทำต่อเพื่อนำมาใส่ในresume</p>
-          <p className="fs-4 ">หัวข้อ projectคือเว็บการจองห้องประชุมสำหรับพนักงาน</p>
+          <p className="fs-4 ">หัวข้อ projectคือเว็บการจองห้องประชุมสำหรับพนักงาน</p
+          >
+          <p className="fs-5 text-start">ใช้ Id admin โดยกดปุ่มขวาล่างเพื่อเข้าถึงได้ทุกหน้าหรือ ลองสมัครสมาชิกได้ <br />หรือใช้ ID ที่เตรียมไว้ให้</p>
 
-          <p className="fs-5">คุณสามารถลองใช้ Id admin โดยกดปุ่มขวาล่างหรือ ลองสมัครสมาชิกได้</p>
+          <div className='fs-5 text-start'>Username staff test : ndodth@gmail.com</div>
+          <div className='fs-5 text-start'>Password staff test : 123456</div>
         </div>
       );
     } else if (location.pathname === '/home') {
