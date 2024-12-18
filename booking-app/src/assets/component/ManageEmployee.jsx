@@ -384,13 +384,13 @@ function EmployeeManagement() {
                       className="text-secondary fs-5">   เนื่องจากเว็บไซต์นี้เปิดให้ผู้ใช้ทุกคนเข้าถึงได้ ปุ่มลบจึงถูกปิดใช้งาน
 
                     </div>
-                      {/* <button
+                      <button
                         className="btn btn-danger mb-2"
                         style={{ width: '200px' }}
                         onClick={() => deleteEmployee(employee.id)}
                       >
                         ลบพนักงาน
-                      </button> */}
+                      </button>
                       <button
                         className="btn btn-info mb-2"
                         style={{ width: '200px' }}

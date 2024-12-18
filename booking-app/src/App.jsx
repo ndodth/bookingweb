@@ -36,7 +36,6 @@ const App = () => {
   const [Permission, setPermission] = useState([]);
 
   const [isAdmin, setIsAdmin] = useState(localStorage.getItem('isAdmin') === 'true');
-  const [data, setData] = useState(null); // เก็บข้อมูลจาก API
 
   const handleLogin = () => {
     setIsLoggedIn(true);
@@ -56,11 +55,14 @@ const App = () => {
   };
 
   useEffect(() => {
+    const fetchData = async () => {
+  
+    await new Promise((resolve) => setTimeout(resolve, 700));
 
     const token = localStorage.getItem("token");
-
-    const fetchData = async () => {
+   
       try {
+
         const response = await fetch("https://bookingweb-sxkw.onrender.com/userPermissions", {
           method: "GET",
           headers: {
@@ -69,18 +71,15 @@ const App = () => {
           },
         });
 
-
         const data = await response.json();
         setPermission(data);
-        console.log(data)
-        // Here you might want to update state with fetched data, e.g., setRooms(data);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [isLoggedIn]);
 
   return (
     <Router>

@@ -35,17 +35,15 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
             
             const data = await response.json();
             setPermission(data);
-            console.log(data)
           } catch (error) {
             console.error("Error fetching data:", error);
           }
         };
       
         fetchData();
-    }, 1000);
+    }, 700);
       }, [isLoggedIn]);
 
-      console.log("Permission",Permission)
   return (
         <div className="d-flex flex-column flex-shrink-0 p-3 bg-white" style={{ width: '250px', height: '100vh', overflowY: 'auto' }}>
             <ul className="nav nav-pills flex-column pb-3 w-100">
